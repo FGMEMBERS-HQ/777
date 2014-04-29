@@ -78,6 +78,10 @@ var key = func(v) {
 				if (cduDisplay == "EICAS_SYN"){
 					eicasDisplay = "ECS";
 				}
+        if (cduDisplay == "NAV_RAD"){
+					setprop("instrumentation/nav[0]/radials/selected-deg",cduInput);
+					cduInput = "";
+				}
 				if (cduDisplay == "POS_INIT"){
 					setprop("instrumentation/fmc/ref-airport",cduInput);
 					cduInput = "";;
@@ -108,6 +112,10 @@ var key = func(v) {
 				}
 				else if (cduDisplay == "EICAS_SYN"){
 					eicasDisplay = "DRS";
+				}
+        if (cduDisplay == "NAV_RAD"){
+					setprop("instrumentation/nav[1]/radials/selected-deg",cduInput);
+					cduInput = "";
 				}
 				else if (cduDisplay == "MENU"){
 					eicasDisplay = "EICAS_MODES";
