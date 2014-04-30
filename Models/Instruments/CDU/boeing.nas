@@ -196,6 +196,19 @@ var key = func(v) {
 					}
 					cduInput = "";
 				}
+        if (cduDisplay == "NAV_RAD") {
+          var nav0freq = getprop("instrumentation/nav[0]/frequencies/selected-mhz");
+          var nav0rad = getprop("instrumentation/nav[0]/radials/selected-deg");
+          var nav1freq = getprop("instrumentation/nav[1]/frequencies/selected-mhz");
+          var nav1rad = getprop("instrumentation/nav[1]/radials/selected-deg");
+          
+          print("VOR1"~nav0freq);
+          
+          setprop("instrumentation/nav[0]/frequencies/selected-mhz",nav1freq);
+          setprop("instrumentation/nav[0]/radials/selected-deg",nav1rad);
+          setprop("instrumentation/nav[1]/frequencies/selected-mhz",nav0freq);
+          setprop("instrumentation/nav[1]/radials/selected-deg",nav0rad);
+        }
 			}
 			if (v == "LSK6L"){
 				if (cduDisplay == "INIT_REF"){
@@ -401,6 +414,7 @@ var cdu = func{
 			line3lt = "ADF L";
 			line3l = sprintf("%3.2f", getprop("instrumentation/adf[0]/frequencies/selected-khz"));
 			line3rt = "ADF R";
+      line5r = "SWITCH";
 		}
 		if (display == "PERF_INIT") {
 			title = "PERF INIT";
