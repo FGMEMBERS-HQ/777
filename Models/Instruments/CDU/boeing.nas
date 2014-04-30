@@ -414,7 +414,7 @@ var cdu = func{
 			line3lt = "ADF L";
 			line3l = sprintf("%3.2f", getprop("instrumentation/adf[0]/frequencies/selected-khz"));
 			line3rt = "ADF R";
-      line5r = "SWITCH";
+      line5r = "SWITCH>";
 		}
 		if (display == "PERF_INIT") {
 			title = "PERF INIT";
