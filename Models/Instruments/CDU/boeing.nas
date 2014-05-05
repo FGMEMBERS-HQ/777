@@ -55,7 +55,7 @@ var key = func(v) {
 				if (cduDisplay == "EICAS_SYN"){
 					eicasDisplay = "HYD";
 				}
-				if (cduDisplay == "NAV RAD"){
+				if (cduDisplay == "NAV_RAD"){
 					setprop("instrumentation/nav[1]/frequencies/selected-mhz",cduInput);
 					cduInput = "";
 				}
