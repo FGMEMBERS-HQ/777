@@ -77,7 +77,7 @@ var key = func(v) {
 						cduInput = "";
 					}
 					else{
-						cduLegsInsertWP(2, cduInput);
+						cduLegsInsertWP(1, cduInput);
             cduInput = "";
 					}
 				}
@@ -134,7 +134,7 @@ var key = func(v) {
 						cduInput = "";
 					}
 					else{
-						cduLegsInsertWP(3, cduInput);
+						cduLegsInsertWP(2, cduInput);
             cduInput = "";
 					}
 				}
@@ -171,7 +171,7 @@ var key = func(v) {
 						cduInput = "";
 					}
 					else{
-						cduLegsInsertWP(4, cduInput);
+						cduLegsInsertWP(3, cduInput);
             cduInput = "";
 					}
 				}
@@ -192,7 +192,7 @@ var key = func(v) {
 						cduInput = "";
 					}
 					else{
-						cduLegsInsertWP(5, cduInput);
+						cduLegsInsertWP(4, cduInput);
             cduInput = "";
 					}
 				}
@@ -213,7 +213,7 @@ var key = func(v) {
 						cduInput = "";
 					}
 					else{
-						cduLegsInsertWP(6, cduInput);
+						cduLegsInsertWP(5, cduInput);
             cduLegsScrollWP(1);
             cduInput = "";
 					}
