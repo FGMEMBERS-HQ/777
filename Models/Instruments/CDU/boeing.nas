@@ -47,9 +47,10 @@ var cduLegsScrollWP = func(relative) {
 var cduLegsLeftLSKPressed = func(index, cduInput) {
   cduWpSelected = -1;
   if (cduInput == nil or cduInput == "") {
-    var curWp = getprop("autopilot/route-manager/route/wp["~index~"]/id");
+    var wpIndex = cduWpOffset + index;
+    var curWp = getprop("autopilot/route-manager/route/wp["~wpIndex~"]/id");
     if ( curWp != nil){
-      cduWpSelected = index;
+      cduWpSelected = wpIndex;
       return curWp;
     }
     else {
@@ -583,6 +584,16 @@ var cdu = func{
 			else {
 				title = "RTE 1 LEGS";
 				}
+        
+      var activeWp = int(getprop("autopilot/route-manager/current-wp"));
+      if (activeWp>0) {
+        if (activeWp - cduWpOffset == 1) line1c = "<-- ACTIVE";
+        if (activeWp - cduWpOffset == 2) line2c = "<-- ACTIVE";
+        if (activeWp - cduWpOffset == 3) line3c = "<-- ACTIVE";
+        if (activeWp - cduWpOffset == 4) line4c = "<-- ACTIVE";
+        if (activeWp - cduWpOffset == 5) line5c = "<-- ACTIVE";
+      }
+      
 			if (getprop("autopilot/route-manager/route/wp["~(cduWpOffset+1)~"]/id") != nil){
 				line1lt = sprintf("%3.0f", getprop("autopilot/route-manager/route/wp["~(cduWpOffset+1)~"]/leg-bearing-true-deg"));
 				line1l = getprop("autopilot/route-manager/route/wp["~(cduWpOffset+1)~"]/id");
