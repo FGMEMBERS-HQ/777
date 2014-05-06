@@ -43,6 +43,26 @@ var cduLegsScrollWP = func(relative) {
   #print("DEBUG: cduLegsScrollWP new cduWpOffset=", cduWpOffset);
 }
 
+var cduLegsLeftLSKPressed = func(index, cduInput) {
+  if (cduInput == nil or cduInput == "") {
+    var curWp = getprop("autopilot/route-manager/route/wp["~index~"]/id");
+    if ( curWp != nil){
+      return curWp;
+    }
+    else {
+      return "";
+    }
+  } 
+  else if (cduInput == "DELETE"){
+    cduLegsDeleteWP(index);
+    return "";
+  }
+  else {
+    cduLegsInsertWP(index, cduInput);
+    return "";
+  }
+}
+
 var key = func(v) {
 		var cduDisplay = getprop("instrumentation/cdu/display");
 		var serviceable = getprop("instrumentation/cdu/serviceable");
@@ -72,14 +92,7 @@ var key = func(v) {
 					cduInput = "";
 				}
 				if (cduDisplay == "RTE1_LEGS"){
-					if (cduInput == "DELETE"){
-						cduLegsDeleteWP(1);
-						cduInput = "";
-					}
-					else{
-						cduLegsInsertWP(1, cduInput);
-            cduInput = "";
-					}
+					cduInput = cduLegsLeftLSKPressed(1, cduInput);
 				}
 				if (cduDisplay == "TO_REF"){
 					setprop("instrumentation/fmc/to-flap",cduInput);
@@ -129,14 +142,7 @@ var key = func(v) {
 					cduInput = "";;
 				}
 				if (cduDisplay == "RTE1_LEGS"){
-					if (cduInput == "DELETE"){
-						cduLegsDeleteWP(2);
-						cduInput = "";
-					}
-					else{
-						cduLegsInsertWP(2, cduInput);
-            cduInput = "";
-					}
+					cduInput = cduLegsLeftLSKPressed(2, cduInput);
 				}
 			}
 			if (v == "LSK2R"){
@@ -166,14 +172,7 @@ var key = func(v) {
 					cduDisplay = "PERF_INIT";
 				}
 				if (cduDisplay == "RTE1_LEGS"){
-					if (cduInput == "DELETE"){
-						cduLegsDeleteWP(3);
-						cduInput = "";
-					}
-					else{
-						cduLegsInsertWP(3, cduInput);
-            cduInput = "";
-					}
+					cduInput = cduLegsLeftLSKPressed(3, cduInput);
 				}
 			}
 			if (v == "LSK3R"){
@@ -187,14 +186,7 @@ var key = func(v) {
 					cduDisplay = "THR_LIM";
 				}
 				if (cduDisplay == "RTE1_LEGS"){
-					if (cduInput == "DELETE"){
-						cduLegsDeleteWP(4);
-						cduInput = "";
-					}
-					else{
-						cduLegsInsertWP(4, cduInput);
-            cduInput = "";
-					}
+					cduInput = cduLegsLeftLSKPressed(4, cduInput);
 				}
 			}
 			if (v == "LSK4R"){
@@ -208,15 +200,7 @@ var key = func(v) {
 					cduDisplay = "TO_REF";
 				}
 				if (cduDisplay == "RTE1_LEGS"){
-					if (cduInput == "DELETE"){
-						cduLegsDeleteWP(5);
-						cduInput = "";
-					}
-					else{
-						cduLegsInsertWP(5, cduInput);
-            cduLegsScrollWP(1);
-            cduInput = "";
-					}
+					cduInput = cduLegsLeftLSKPressed(5, cduInput);
 				}
 			}
 			if (v == "LSK5R"){
