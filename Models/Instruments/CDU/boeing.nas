@@ -7,6 +7,7 @@ var input = func(v) {
 	}
   
 var cduWpOffset = 0;
+var cduWpSelected = -1;
 
 var cduLegsDeleteWP = func(pos) {
   var index = pos + cduWpOffset;
@@ -44,9 +45,11 @@ var cduLegsScrollWP = func(relative) {
 }
 
 var cduLegsLeftLSKPressed = func(index, cduInput) {
+  cduWpSelected = -1;
   if (cduInput == nil or cduInput == "") {
     var curWp = getprop("autopilot/route-manager/route/wp["~index~"]/id");
     if ( curWp != nil){
+      cduWpSelected = index;
       return curWp;
     }
     else {
@@ -61,6 +64,17 @@ var cduLegsLeftLSKPressed = func(index, cduInput) {
     cduLegsInsertWP(index, cduInput);
     return "";
   }
+}
+
+var cduSelectWaypoint = func(wpIndex, cduInput) {
+  if (wpIndex>0) {
+    var wpId = getprop("autopilot/route-manager/route/wp["~wpIndex~"]/id");
+    if (wpId != nil or wpId == cduInput) {
+      setprop("autopilot/route-manager/current-wp", wpIndex);
+      return "";
+    }
+  }
+  return cduInput;
 }
 
 var key = func(v) {
@@ -259,6 +273,11 @@ var key = func(v) {
 					cduDisplay = "MAINT";
 				}
 			}
+      if (v == "EXEC"){
+        if (cduDisplay == "RTE1_LEGS") {
+          cduInput = cduSelectWaypoint(cduWpSelected, cduInput);
+        }
+      }
 			
 			setprop("instrumentation/cdu/display",cduDisplay);
 			if (eicasDisplay != nil){

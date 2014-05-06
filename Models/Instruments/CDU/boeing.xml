@@ -1209,6 +1209,20 @@
 	</action>
 </animation>
 
+<!-- Btn.exec -->
+<animation>
+	<type>pick</type>
+	<object-name>Btn.exec</object-name>
+	<action>
+		<button>0</button>
+		<repeatable>false</repeatable>  
+		<binding>
+			<command>nasal</command>
+			<script>cdu.key('EXEC');</script>
+		</binding>
+	</action>
+</animation>
+
 <animation>
 	<type>pick</type>
 	<object-name>Btn.zero</object-name>
