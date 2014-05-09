@@ -594,11 +594,20 @@ var cdu = func{
         if (activeWp - cduWpOffset == 5) line5c = "<-- ACTIVE";
       }
       
+      var formatAltitude = func(lineIndex) {
+        var alt = getprop("autopilot/route-manager/route/wp["~(cduWpOffset+lineIndex)~"]/altitude-ft");
+        if (alt >= 0) {
+          return sprintf("%5.0f", alt);
+        } else {
+          return "-----";
+        }
+      };
+      
 			if (getprop("autopilot/route-manager/route/wp["~(cduWpOffset+1)~"]/id") != nil){
 				line1lt = sprintf("%3.0f", getprop("autopilot/route-manager/route/wp["~(cduWpOffset+1)~"]/leg-bearing-true-deg"));
 				line1l = getprop("autopilot/route-manager/route/wp["~(cduWpOffset+1)~"]/id");
 				line2ct = sprintf("%3.0f", getprop("autopilot/route-manager/route/wp["~(cduWpOffset+1)~"]/leg-distance-nm"))~" NM";
-				line1r = sprintf("%5.0f", getprop("autopilot/route-manager/route/wp["~(cduWpOffset+1)~"]/altitude-ft"));
+				line1r = formatAltitude(1);
 				if (getprop("autopilot/route-manager/route/wp["~(cduWpOffset+1)~"]/speed-kts") != nil){
 					line4r = getprop("autopilot/route-manager/route/wp["~(cduWpOffset+1)~"]/speed-kts")~"/"~sprintf("%5.0f", getprop("autopilot/route-manager/route/wp["~(cduWpOffset+1)~"]/altitude-ft"));
 					}
@@ -611,7 +620,7 @@ var cdu = func{
 				if (getprop("autopilot/route-manager/route/wp["~(cduWpOffset+2)~"]/leg-distance-nm") != nil){
 					line3ct = sprintf("%3.0f", getprop("autopilot/route-manager/route/wp["~(cduWpOffset+2)~"]/leg-distance-nm"))~" NM";
 				}
-				line2r = sprintf("%5.0f", getprop("autopilot/route-manager/route/wp["~(cduWpOffset+2)~"]/altitude-ft"));
+				line2r = formatAltitude(2);
 				if (getprop("autopilot/route-manager/route/wp["~(cduWpOffset+2)~"]/speed-kts") != nil){
 					line4r = getprop("autopilot/route-manager/route/wp["~(cduWpOffset+2)~"]/speed-kts")~"/"~sprintf("%5.0f", getprop("autopilot/route-manager/route/wp["~(cduWpOffset+2)~"]/altitude-ft"));
 					}
@@ -624,7 +633,7 @@ var cdu = func{
 				if (getprop("autopilot/route-manager/route/wp["~(cduWpOffset+3)~"]/leg-distance-nm") != nil){
 					line4ct = sprintf("%3.0f", getprop("autopilot/route-manager/route/wp["~(cduWpOffset+3)~"]/leg-distance-nm"))~" NM";
 				}
-				line3r = sprintf("%5.0f", getprop("autopilot/route-manager/route/wp["~(cduWpOffset+3)~"]/altitude-ft"));
+				line3r = formatAltitude(3);
 				if (getprop("autopilot/route-manager/route/wp["~(cduWpOffset+3)~"]/speed-kts") != nil){
 					line3r = getprop("autopilot/route-manager/route/wp["~(cduWpOffset+3)~"]/speed-kts")~"/"~sprintf("%5.0f", getprop("autopilot/route-manager/route/wp["~(cduWpOffset+3)~"]/altitude-ft"));;
 					}
@@ -637,7 +646,7 @@ var cdu = func{
 				if (getprop("autopilot/route-manager/route/wp["~(cduWpOffset+4)~"]/leg-distance-nm") != nil){
 					line5ct = sprintf("%3.0f", getprop("autopilot/route-manager/route/wp["~(cduWpOffset+4)~"]/leg-distance-nm"))~" NM";
 				}
-				line4r = sprintf("%5.0f", getprop("autopilot/route-manager/route/wp["~(cduWpOffset+4)~"]/altitude-ft"));
+				line4r = formatAltitude(4);
 				if (getprop("autopilot/route-manager/route/wp["~(cduWpOffset+4)~"]/speed-kts") != nil){
 					line4r = getprop("autopilot/route-manager/route/wp["~(cduWpOffset+4)~"]/speed-kts")~"/"~sprintf("%5.0f", getprop("autopilot/route-manager/route/wp["~(cduWpOffset+4)~"]/altitude-ft"));
 					}
@@ -647,7 +656,7 @@ var cdu = func{
 					line5lt = sprintf("%3.0f", getprop("autopilot/route-manager/route/wp["~(cduWpOffset+5)~"]/leg-bearing-true-deg"));
 				}
 				line5l = getprop("autopilot/route-manager/route/wp["~(cduWpOffset+5)~"]/id");
-				line5r = sprintf("%5.0f", getprop("autopilot/route-manager/route/wp["~(cduWpOffset+5)~"]/altitude-ft"));
+				line5r = formatAltitude(5);
 				if (getprop("autopilot/route-manager/route/wp["~(cduWpOffset+5)~"]/speed-kts") != nil){
 					line4r = getprop("autopilot/route-manager/route/wp["~(cduWpOffset+5)~"]/speed-kts")~"/"~sprintf("%5.0f", getprop("autopilot/route-manager/route/wp["~(cduWpOffset+5)~"]/altitude-ft"));
 					}
