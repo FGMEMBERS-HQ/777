@@ -315,159 +315,164 @@ var plusminus = func {
 var cdu = func{
 		var display = getprop("instrumentation/cdu/display");
 		var serviceable = getprop("instrumentation/cdu/serviceable");
-		title = "";		page = "";
-		line1l = "";	line2l = "";	line3l = "";	line4l = "";	line5l = "";	line6l = "";
-		line1lt = "";	line2lt = "";	line3lt = "";	line4lt = "";	line5lt = "";	line6lt = "";
-		line1c = "";	line2c = "";	line3c = "";	line4c = "";	line5c = "";	line6c = "";
-		line1ct = "";	line2ct = "";	line3ct = "";	line4ct = "";	line5ct = "";	line6ct = "";
-		line1r = "";	line2r = "";	line3r = "";	line4r = "";	line5r = "";	line6r = "";
-		line1rt = "";	line2rt = "";	line3rt = "";	line4rt = "";	line5rt = "";	line6rt = "";
+    var output = {
+      title : "",
+      page : "",
+      leftTitle : [ "", "", "", "", "", "" ],
+      left : [ "", "", "", "", "", "" ],
+      centerTitle : [ "", "", "", "", "", "" ],
+      center : [ "", "", "", "", "", "" ],
+      rightTitle : [ "", "", "", "", "", "" ],
+      right : [ "", "", "", "", "", "" ],
+    };
+		output.right[0] = "";	output.right[1] = "";	output.right[2] = "";	output.right[3] = "";	output.right[4] = "";	output.right[5] = "";
 		
 		if (display == "MENU") {
-			title = "MENU";
-			line1l = "<FMC";
-			line1rt = "EFIS CP";
-			line1r = "SELECT>";
-			line2l = "<ACARS";
-			line2rt = "EICAS CP";
-			line2r = "SELECT>";
-			line6l = "<ACMS";
-			line6r = "CMC>";
+			output.title = "MENU";
+			output.left[0] = "<FMC";
+			output.rightTitle[0] = "EFIS CP";
+			output.right[0] = "SELECT>";
+			output.left[1] = "<ACARS";
+			output.rightTitle[1] = "EICAS CP";
+			output.right[1] = "SELECT>";
+			output.left[5] = "<ACMS";
+			output.right[5] = "CMC>";
 		}
 		if (display == "ALTN_NAV_RAD") {
-			title = "ALTN NAV RADIO";
+			output.title = "ALTN NAV RADIO";
 		}
 		if (display == "APP_REF") {
-			title = "APPROACH REF";
-			line1lt = "GROSS WT";
-			line1rt = "FLAPS    VREF";
+			output.title = "APPROACH REF";
+			output.leftTitle[0] = "GROSS WT";
+			output.rightTitle[0] = "FLAPS    VREF";
 			if (getprop("instrumentation/fmc/vspeeds/Vref") != nil){
-				line1l = getprop("instrumentation/fmc/vspeeds/Vref");
+				output.left[0] = getprop("instrumentation/fmc/vspeeds/Vref");
 			}
 			if (getprop("autopilot/route-manager/destination/airport") != nil){
-				line4lt = getprop("autopilot/route-manager/destination/airport");
+				output.leftTitle[3] = getprop("autopilot/route-manager/destination/airport");
 			}
-			line6l = "<INDEX";
-			line6r = "THRUST LIM>";
+			output.left[5] = "<INDEX";
+			output.right[5] = "THRUST LIM>";
 		}
 		if (display == "DEP_ARR_INDEX") {
-			title = "DEP/ARR INDEX";
-			line1l = "<DEP";
-			line1ct = "RTE 1";
+			output.title = "DEP/ARR INDEX";
+			output.left[0] = "<DEP";
+			output.centerTitle[0] = "RTE 1";
 			if (getprop("autopilot/route-manager/departure/airport") != nil){
-				line1c = getprop("autopilot/route-manager/departure/airport");
+				output.center[0] = getprop("autopilot/route-manager/departure/airport");
 			}
-			line1r = "ARR>";
+			output.right[0] = "ARR>";
 			if (getprop("autopilot/route-manager/destination/airport") != nil){
-				line2c = getprop("autopilot/route-manager/destination/airport");
+				output.center[1] = getprop("autopilot/route-manager/destination/airport");
 			}
-			line2r = "ARR>";
-			line3l = "<DEP";
-			line3r = "ARR>";
-			line4r = "ARR>";
-			line6lt ="DEP";
-			line6l = "<----";
-			line6c = "OTHER";
-			line6rt ="ARR";
-			line6r = "---->";
+			output.right[1] = "ARR>";
+			output.left[2] = "<DEP";
+			output.right[2] = "ARR>";
+			output.right[3] = "ARR>";
+			output.leftTitle[5] ="DEP";
+			output.left[5] = "<----";
+			output.center[5] = "OTHER";
+			output.rightTitle[5] ="ARR";
+			output.right[5] = "---->";
 		}
 		if (display == "EICAS_MODES") {
-			title = "EICAS MODES";
-			line1l = "<ENG";
-			line1r = "FUEL>";
-			line2l = "<STAT";
-			line2r = "GEAR>";
-			line5l = "<CANC";
-			line5r = "RCL>";
-			line6r = "SYNOPTICS>";
+			output.title = "EICAS MODES";
+			output.left[0] = "<ENG";
+			output.right[0] = "FUEL>";
+			output.left[1] = "<STAT";
+			output.right[1] = "GEAR>";
+			output.left[4] = "<CANC";
+			output.right[4] = "RCL>";
+			output.right[5] = "SYNOPTICS>";
 		}
 		if (display == "EICAS_SYN") {
-			title = "EICAS SYNOPTICS";
-			line1l = "<ELEC";
-			line1r = "HYD>";
-			line2l = "<ECS";
-			line2r = "DOORS>";
-			line5l = "<CANC";
-			line5r = "RCL>";
-			line6r = "MODES>";
+			output.title = "EICAS SYNOPTICS";
+			output.left[0] = "<ELEC";
+			output.right[0] = "HYD>";
+			output.left[1] = "<ECS";
+			output.right[1] = "DOORS>";
+			output.left[4] = "<CANC";
+			output.right[4] = "RCL>";
+			output.right[5] = "MODES>";
 		}
 		if (display == "FIX_INFO") {
-			title = "FIX INFO";
-			line1l = sprintf("%3.2f", getprop("instrumentation/nav[0]/frequencies/selected-mhz-fmt"));
-			line1r = sprintf("%3.2f", getprop("instrumentation/nav[1]/frequencies/selected-mhz-fmt"));
-			line2l = sprintf("%3.2f", getprop("instrumentation/nav[0]/radials/selected-deg"));
-			line2r = sprintf("%3.2f", getprop("instrumentation/nav[1]/radials/selected-deg"));
-			line6l = "<ERASE FIX";
+			output.title = "FIX INFO";
+			output.left[0] = sprintf("%3.2f", getprop("instrumentation/nav[0]/frequencies/selected-mhz-fmt"));
+			output.right[0] = sprintf("%3.2f", getprop("instrumentation/nav[1]/frequencies/selected-mhz-fmt"));
+			output.left[1] = sprintf("%3.2f", getprop("instrumentation/nav[0]/radials/selected-deg"));
+			output.right[1] = sprintf("%3.2f", getprop("instrumentation/nav[1]/radials/selected-deg"));
+			output.left[5] = "<ERASE FIX";
 		}
 		if (display == "IDENT") {
-			title = "IDENT";
-			line1lt = "MODEL";
+			output.title = "IDENT";
+			output.leftTitle[0] = "MODEL";
 			if (getprop("instrumentation/cdu/ident/model") != nil){
-				line1l = getprop("instrumentation/cdu/ident/model");
+				output.left[0] = getprop("instrumentation/cdu/ident/model");
 			}
-			line1rt = "ENGINES";
-			line2lt = "NAV DATA";
+			output.rightTitle[0] = "ENGINES";
+			output.leftTitle[1] = "NAV DATA";
 			if (getprop("instrumentation/cdu/ident/engines") != nil){
-				line1r = getprop("instrumentation/cdu/ident/engines");
+				output.right[0] = getprop("instrumentation/cdu/ident/engines");
 			}
-			line6l = "<INDEX";
-			line6r = "POS INIT>";
+			output.left[5] = "<INDEX";
+			output.right[5] = "POS INIT>";
 		}
 		if (display == "INIT_REF") {
-			title = "INIT/REF INDEX";
-			line1l = "<IDENT";
-			line1r = "NAV DATA>";
-			line2l = "<POS";
-			line3l = "<PERF";
-			line4l = "<THRUST LIM";
-			line5l = "<TAKEOFF";
-			line6l = "<APPROACH";
-			line6r = "MAINT>";
+			output.title = "INIT/REF INDEX";
+			output.left[0] = "<IDENT";
+			output.right[0] = "NAV DATA>";
+			output.left[1] = "<POS";
+			output.left[2] = "<PERF";
+			output.left[3] = "<THRUST LIM";
+			output.left[4] = "<TAKEOFF";
+			output.left[5] = "<APPROACH";
+			output.right[5] = "MAINT>";
 		}
 		if (display == "MAINT") {
-			title = "MAINTENANCE INDEX";
-			line1l = "<CROS LOAD";
-			line1r = "BITE>";
-			line2l = "<PERF FACTORS";
-			line3l = "<IRS MONITOR";
-			line6l = "<INDEX";
+			output.title = "MAINTENANCE INDEX";
+			output.left[0] = "<CROS LOAD";
+			output.right[0] = "BITE>";
+			output.left[1] = "<PERF FACTORS";
+			output.left[2] = "<IRS MONITOR";
+			output.left[5] = "<INDEX";
 		}
 		if (display == "NAV_RAD") {
-			title = "NAV RADIO";
-			line1lt = "VOR L";
-			line1l = sprintf("%3.2f", getprop("instrumentation/nav[0]/frequencies/selected-mhz-fmt"));
-			line1rt = "VOR R";
-			line1r = sprintf("%3.2f", getprop("instrumentation/nav[1]/frequencies/selected-mhz-fmt"));
-			line2lt = "CRS";
-			line2ct = "RADIAL";
-			line2c = sprintf("%3.2f", getprop("instrumentation/nav[0]/radials/selected-deg"))~"   "~sprintf("%3.2f", getprop("instrumentation/nav[1]/radials/selected-deg"));
-			line2rt = "CRS";
-			line3lt = "ADF L";
-			line3l = sprintf("%3.2f", getprop("instrumentation/adf[0]/frequencies/selected-khz"));
-			line3rt = "ADF R";
-      line5r = "SWITCH>";
+			output.title = "NAV RADIO";
+			output.leftTitle[0] = "VOR L";
+			output.left[0] = sprintf("%3.2f", getprop("instrumentation/nav[0]/frequencies/selected-mhz-fmt"));
+			output.rightTitle[0] = "VOR R";
+			output.right[0] = sprintf("%3.2f", getprop("instrumentation/nav[1]/frequencies/selected-mhz-fmt"));
+			output.leftTitle[1] = "CRS";
+			output.centerTitle[1] = "RADIAL";
+			output.center[1] = sprintf("%3.2f", getprop("instrumentation/nav[0]/radials/selected-deg"))~"   "~sprintf("%3.2f", getprop("instrumentation/nav[1]/radials/selected-deg"));
+			output.rightTitle[1] = "CRS";
+			output.leftTitle[2] = "ADF L";
+			output.left[2] = sprintf("%3.2f", getprop("instrumentation/adf[0]/frequencies/selected-khz"));
+			output.rightTitle[2] = "ADF R";
+			output.right[2] = sprintf("%3.2f", getprop("instrumentation/adf[1]/frequencies/selected-khz"));
+      output.right[4] = "SWITCH>";
 		}
 		if (display == "PERF_INIT") {
-			title = "PERF INIT";
-			line1lt = "GR WT";
-			line1rt = "CRZ ALT";
-			line1r = getprop("autopilot/route-manager/cruise/altitude-ft");
-			line2lt = "FUEL";
-			line3lt = "ZFW";
-			line4lt = "RESERVES";
-			line4rt = "CRZ CG";
-			line5lt = "COST INDEX";
-			line5rt = "STEP SIZE";
-			line6l = "<INDEX";
-			line6r = "THRUST LIM>";	
+			output.title = "PERF INIT";
+			output.leftTitle[0] = "GR WT";
+			output.rightTitle[0] = "CRZ ALT";
+			output.right[0] = getprop("autopilot/route-manager/cruise/altitude-ft");
+			output.leftTitle[1] = "FUEL";
+			output.leftTitle[2] = "ZFW";
+			output.leftTitle[3] = "RESERVES";
+			output.rightTitle[3] = "CRZ CG";
+			output.leftTitle[4] = "COST INDEX";
+			output.rightTitle[4] = "STEP SIZE";
+			output.left[5] = "<INDEX";
+			output.right[5] = "THRUST LIM>";	
 			if (getprop("sim/flight-model") == "jsb") {
-				line1l = sprintf("%3.1f", (getprop("fdm/jsbsim/inertia/weight-lbs")/1000));
-				line2l = sprintf("%3.1f", (getprop("fdm/jsbsim/propulsion/total-fuel-lbs")/1000));
-				line3l = sprintf("%3.1f", (getprop("fdm/jsbsim/inertia/empty-weight-lbs")/1000));
+				output.left[0] = sprintf("%3.1f", (getprop("fdm/jsbsim/inertia/weight-lbs")/1000));
+				output.left[1] = sprintf("%3.1f", (getprop("fdm/jsbsim/propulsion/total-fuel-lbs")/1000));
+				output.left[2] = sprintf("%3.1f", (getprop("fdm/jsbsim/inertia/empty-weight-lbs")/1000));
 			}
 			elsif (getprop("sim/flight-model") == "yasim") {
-				line1l = sprintf("%3.1f", (getprop("yasim/gross-weight-lbs")/1000));
-				line2l = sprintf("%3.1f", (getprop("consumables/fuel/total-fuel-lbs")/1000));
+				output.left[0] = sprintf("%3.1f", (getprop("yasim/gross-weight-lbs")/1000));
+				output.left[1] = sprintf("%3.1f", (getprop("consumables/fuel/total-fuel-lbs")/1000));
 
 				yasim_emptyweight = getprop("yasim/gross-weight-lbs");
 				yasim_emptyweight -= getprop("consumables/fuel/total-fuel-lbs");
@@ -476,122 +481,122 @@ var cdu = func{
 					yasim_emptyweight -= yasim_weights[i].getChild("weight-lb").getValue();
 				}
 
-				line3l = sprintf("%3.1f", yasim_emptyweight/1000);
+				output.left[2] = sprintf("%3.1f", yasim_emptyweight/1000);
 			}
 		}
 		if (display == "POS_INIT") {
-			title = "POS INIT";
-			line6l = "<INDEX";
-			line6r = "ROUTE>";
+			output.title = "POS INIT";
+			output.left[5] = "<INDEX";
+			output.right[5] = "ROUTE>";
 		}
 		if (display == "POS_REF") {
-			title = "POS REF";
-			line1lt = "FMC POST";
-			line1l = getprop("position/latitude-string")~" "~getprop("position/longitude-string");
-			line1rt = "GS";
-			line1r = sprintf("%3.0f", getprop("velocities/groundspeed-kt"));
-			line5l = "<PURGE";
-			line5r = "INHIBIT>";
-			line6l = "<INDEX";
-			line6r = "BRG/DIST>";
+			output.title = "POS REF";
+			output.leftTitle[0] = "FMC POST";
+			output.left[0] = getprop("position/latitude-string")~" "~getprop("position/longitude-string");
+			output.rightTitle[0] = "GS";
+			output.right[0] = sprintf("%3.0f", getprop("velocities/groundspeed-kt"));
+			output.left[4] = "<PURGE";
+			output.right[4] = "INHIBIT>";
+			output.left[5] = "<INDEX";
+			output.right[5] = "BRG/DIST>";
 		}
 		if (display == "RTE1_1") {
-			title = "RTE 1";
-			page = "1/2";
-			line1lt = "ORIGIN";
+			output.title = "RTE 1";
+			output.page = "1/2";
+			output.leftTitle[0] = "ORIGIN";
 			if (getprop("autopilot/route-manager/departure/airport") != nil){
-				line1l = getprop("autopilot/route-manager/departure/airport");
+				output.left[0] = getprop("autopilot/route-manager/departure/airport");
 			}
-			line1rt = "DEST";
+			output.rightTitle[0] = "DEST";
 			if (getprop("autopilot/route-manager/destination/airport") != nil){
-				line1r = getprop("autopilot/route-manager/destination/airport");
+				output.right[0] = getprop("autopilot/route-manager/destination/airport");
 			}
-			line2lt = "RUNWAY";
+			output.leftTitle[1] = "RUNWAY";
 			if (getprop("autopilot/route-manager/departure/runway") != nil){
-				line2l = getprop("autopilot/route-manager/departure/runway");
+				output.left[1] = getprop("autopilot/route-manager/departure/runway");
 			}
-			line2rt = "FLT NO";
-			line3rt = "CO ROUTE";
-			line5l = "<RTE COPY";
-			line6l = "<RTE 2";
+			output.rightTitle[1] = "FLT NO";
+			output.rightTitle[2] = "CO ROUTE";
+			output.left[4] = "<RTE COPY";
+			output.left[5] = "<RTE 2";
 			if (getprop("autopilot/route-manager/active") == 1){
-				line6r = "PERF INIT>";
+				output.right[5] = "PERF INIT>";
 				}
 			else {
-				line6r = "ACTIVATE>";
+				output.right[5] = "ACTIVATE>";
 				}
 		}
 		if (display == "RTE1_2") {
-			title = "RTE 1";
-			page = "2/2";
-			line1lt = "VIA";
-			line1rt = "TO";
+			output.title = "RTE 1";
+			output.page = "2/2";
+			output.leftTitle[0] = "VIA";
+			output.rightTitle[0] = "TO";
 			if (getprop("autopilot/route-manager/route/wp[1]/id") != nil){
-				line1r = getprop("autopilot/route-manager/route/wp[1]/id");
+				output.right[0] = getprop("autopilot/route-manager/route/wp[1]/id");
 				}
 			if (getprop("autopilot/route-manager/route/wp[2]/id") != nil){
-				line2r = getprop("autopilot/route-manager/route/wp[2]/id");
+				output.right[1] = getprop("autopilot/route-manager/route/wp[2]/id");
 				}
 			if (getprop("autopilot/route-manager/route/wp[3]/id") != nil){
-				line3r = getprop("autopilot/route-manager/route/wp[3]/id");
+				output.right[2] = getprop("autopilot/route-manager/route/wp[3]/id");
 				}
 			if (getprop("autopilot/route-manager/route/wp[4]/id") != nil){
-				line4r = getprop("autopilot/route-manager/route/wp[4]/id");
+				output.right[3] = getprop("autopilot/route-manager/route/wp[4]/id");
 				}
 			if (getprop("autopilot/route-manager/route/wp[5]/id") != nil){
-				line5r = getprop("autopilot/route-manager/route/wp[5]/id");
+				output.right[4] = getprop("autopilot/route-manager/route/wp[5]/id");
 				}
-			line6l = "<RTE 2";
-			line6r = "ACTIVATE>";
+			output.left[5] = "<RTE 2";
+			output.right[5] = "ACTIVATE>";
 		}
 		if (display == "RTE1_ARR") {
 			if (getprop("autopilot/route-manager/destination/airport") != nil){
-				title = getprop("autopilot/route-manager/destination/airport")~" ARRIVALS";
+				output.title = getprop("autopilot/route-manager/destination/airport")~" ARRIVALS";
 			}
 			else{
-				title = "ARRIVALS";
+				output.title = "ARRIVALS";
 			}
-			line1lt = "STARS";
-			line1rt = "APPROACHES";
+			output.leftTitle[0] = "STARS";
+			output.rightTitle[0] = "APPROACHES";
 			if (getprop("autopilot/route-manager/destination/runway") != nil){
-				line1r = getprop("autopilot/route-manager/destination/runway");
+				output.right[0] = getprop("autopilot/route-manager/destination/runway");
 			}
-			line2lt = "TRANS";
-			line3rt = "RUNWAYS";
-			line6l = "<INDEX";
-			line6r = "ROUTE>";
+			output.leftTitle[1] = "TRANS";
+			output.rightTitle[2] = "RUNWAYS";
+			output.left[5] = "<INDEX";
+			output.right[5] = "ROUTE>";
 		}
 		if (display == "RTE1_DEP") {
 			if (getprop("autopilot/route-manager/departure/airport") != nil){
-				title = getprop("autopilot/route-manager/departure/airport")~" DEPARTURES";
+				output.title = getprop("autopilot/route-manager/departure/airport")~" DEPARTURES";
 			}
 			else{
-				title = "DEPARTURES";
+				output.title = "DEPARTURES";
 			}
-			line1lt = "SIDS";
-			line1rt = "RUNWAYS";
+			output.leftTitle[0] = "SIDS";
+			output.rightTitle[0] = "RUNWAYS";
 			if (getprop("autopilot/route-manager/departure/runway") != nil){
-				line1r = getprop("autopilot/route-manager/departure/runway");
+				output.right[0] = getprop("autopilot/route-manager/departure/runway");
 			}
-			line2lt = "TRANS";
-			line6l = "<ERASE";
-			line6r = "ROUTE>";
+			output.leftTitle[1] = "TRANS";
+			output.left[5] = "<ERASE";
+			output.right[5] = "ROUTE>";
 		}
 		if (display == "RTE1_LEGS") {
 			if (getprop("autopilot/route-manager/active") == 1){
-				title = "ACT RTE 1 LEGS";
+				output.title = "ACT RTE 1 LEGS";
 				}
 			else {
-				title = "RTE 1 LEGS";
+				output.title = "RTE 1 LEGS";
 				}
         
       var activeWp = int(getprop("autopilot/route-manager/current-wp"));
       if (activeWp>0) {
-        if (activeWp - cduWpOffset == 1) line1c = "<-- ACTIVE";
-        if (activeWp - cduWpOffset == 2) line2c = "<-- ACTIVE";
-        if (activeWp - cduWpOffset == 3) line3c = "<-- ACTIVE";
-        if (activeWp - cduWpOffset == 4) line4c = "<-- ACTIVE";
-        if (activeWp - cduWpOffset == 5) line5c = "<-- ACTIVE";
+        if (activeWp - cduWpOffset == 1) output.center[0] = "<-- ACTIVE";
+        if (activeWp - cduWpOffset == 2) output.center[1] = "<-- ACTIVE";
+        if (activeWp - cduWpOffset == 3) output.center[2] = "<-- ACTIVE";
+        if (activeWp - cduWpOffset == 4) output.center[3] = "<-- ACTIVE";
+        if (activeWp - cduWpOffset == 5) output.center[4] = "<-- ACTIVE";
       }
       
       var formatAltitude = func(lineIndex) {
@@ -604,162 +609,136 @@ var cdu = func{
       };
       
 			if (getprop("autopilot/route-manager/route/wp["~(cduWpOffset+1)~"]/id") != nil){
-				line1lt = sprintf("%3.0f", getprop("autopilot/route-manager/route/wp["~(cduWpOffset+1)~"]/leg-bearing-true-deg"));
-				line1l = getprop("autopilot/route-manager/route/wp["~(cduWpOffset+1)~"]/id");
-				line2ct = sprintf("%3.0f", getprop("autopilot/route-manager/route/wp["~(cduWpOffset+1)~"]/leg-distance-nm"))~" NM";
-				line1r = formatAltitude(1);
+				output.leftTitle[0] = sprintf("%3.0f", getprop("autopilot/route-manager/route/wp["~(cduWpOffset+1)~"]/leg-bearing-true-deg"));
+				output.left[0] = getprop("autopilot/route-manager/route/wp["~(cduWpOffset+1)~"]/id");
+				output.centerTitle[1] = sprintf("%3.0f", getprop("autopilot/route-manager/route/wp["~(cduWpOffset+1)~"]/leg-distance-nm"))~" NM";
+				output.right[0] = formatAltitude(1);
 				if (getprop("autopilot/route-manager/route/wp["~(cduWpOffset+1)~"]/speed-kts") != nil){
-					line4r = getprop("autopilot/route-manager/route/wp["~(cduWpOffset+1)~"]/speed-kts")~"/"~sprintf("%5.0f", getprop("autopilot/route-manager/route/wp["~(cduWpOffset+1)~"]/altitude-ft"));
+					output.right[3] = getprop("autopilot/route-manager/route/wp["~(cduWpOffset+1)~"]/speed-kts")~"/"~sprintf("%5.0f", getprop("autopilot/route-manager/route/wp["~(cduWpOffset+1)~"]/altitude-ft"));
 					}
 				}
 			if (getprop("autopilot/route-manager/route/wp["~(cduWpOffset+2)~"]/id") != nil){
 				if (getprop("autopilot/route-manager/route/wp["~(cduWpOffset+2)~"]/leg-bearing-true-deg") != nil){
-					line2lt = sprintf("%3.0f", getprop("autopilot/route-manager/route/wp["~(cduWpOffset+2)~"]/leg-bearing-true-deg"));
+					output.leftTitle[1] = sprintf("%3.0f", getprop("autopilot/route-manager/route/wp["~(cduWpOffset+2)~"]/leg-bearing-true-deg"));
 				}
-				line2l = getprop("autopilot/route-manager/route/wp["~(cduWpOffset+2)~"]/id");
+				output.left[1] = getprop("autopilot/route-manager/route/wp["~(cduWpOffset+2)~"]/id");
 				if (getprop("autopilot/route-manager/route/wp["~(cduWpOffset+2)~"]/leg-distance-nm") != nil){
-					line3ct = sprintf("%3.0f", getprop("autopilot/route-manager/route/wp["~(cduWpOffset+2)~"]/leg-distance-nm"))~" NM";
+					output.centerTitle[2] = sprintf("%3.0f", getprop("autopilot/route-manager/route/wp["~(cduWpOffset+2)~"]/leg-distance-nm"))~" NM";
 				}
-				line2r = formatAltitude(2);
+				output.right[1] = formatAltitude(2);
 				if (getprop("autopilot/route-manager/route/wp["~(cduWpOffset+2)~"]/speed-kts") != nil){
-					line4r = getprop("autopilot/route-manager/route/wp["~(cduWpOffset+2)~"]/speed-kts")~"/"~sprintf("%5.0f", getprop("autopilot/route-manager/route/wp["~(cduWpOffset+2)~"]/altitude-ft"));
+					output.right[3] = getprop("autopilot/route-manager/route/wp["~(cduWpOffset+2)~"]/speed-kts")~"/"~sprintf("%5.0f", getprop("autopilot/route-manager/route/wp["~(cduWpOffset+2)~"]/altitude-ft"));
 					}
 				}
 			if (getprop("autopilot/route-manager/route/wp["~(cduWpOffset+3)~"]/id") != nil){
 				if (getprop("autopilot/route-manager/route/wp["~(cduWpOffset+3)~"]/leg-bearing-true-deg") != nil){
-					line3lt = sprintf("%3.0f", getprop("autopilot/route-manager/route/wp["~(cduWpOffset+3)~"]/leg-bearing-true-deg"));
+					output.leftTitle[2] = sprintf("%3.0f", getprop("autopilot/route-manager/route/wp["~(cduWpOffset+3)~"]/leg-bearing-true-deg"));
 				}
-				line3l = getprop("autopilot/route-manager/route/wp["~(cduWpOffset+3)~"]/id");
+				output.left[2] = getprop("autopilot/route-manager/route/wp["~(cduWpOffset+3)~"]/id");
 				if (getprop("autopilot/route-manager/route/wp["~(cduWpOffset+3)~"]/leg-distance-nm") != nil){
-					line4ct = sprintf("%3.0f", getprop("autopilot/route-manager/route/wp["~(cduWpOffset+3)~"]/leg-distance-nm"))~" NM";
+					output.centerTitle[3] = sprintf("%3.0f", getprop("autopilot/route-manager/route/wp["~(cduWpOffset+3)~"]/leg-distance-nm"))~" NM";
 				}
-				line3r = formatAltitude(3);
+				output.right[2] = formatAltitude(3);
 				if (getprop("autopilot/route-manager/route/wp["~(cduWpOffset+3)~"]/speed-kts") != nil){
-					line3r = getprop("autopilot/route-manager/route/wp["~(cduWpOffset+3)~"]/speed-kts")~"/"~sprintf("%5.0f", getprop("autopilot/route-manager/route/wp["~(cduWpOffset+3)~"]/altitude-ft"));;
+					output.right[2] = getprop("autopilot/route-manager/route/wp["~(cduWpOffset+3)~"]/speed-kts")~"/"~sprintf("%5.0f", getprop("autopilot/route-manager/route/wp["~(cduWpOffset+3)~"]/altitude-ft"));;
 					}
 				}
 			if (getprop("autopilot/route-manager/route/wp["~(cduWpOffset+4)~"]/id") != nil){
 				if (getprop("autopilot/route-manager/route/wp["~(cduWpOffset+4)~"]/leg-bearing-true-deg") != nil){
-					line4lt = sprintf("%3.0f", getprop("autopilot/route-manager/route/wp["~(cduWpOffset+4)~"]/leg-bearing-true-deg"));
+					output.leftTitle[3] = sprintf("%3.0f", getprop("autopilot/route-manager/route/wp["~(cduWpOffset+4)~"]/leg-bearing-true-deg"));
 				}
-				line4l = getprop("autopilot/route-manager/route/wp["~(cduWpOffset+4)~"]/id");
+				output.left[3] = getprop("autopilot/route-manager/route/wp["~(cduWpOffset+4)~"]/id");
 				if (getprop("autopilot/route-manager/route/wp["~(cduWpOffset+4)~"]/leg-distance-nm") != nil){
-					line5ct = sprintf("%3.0f", getprop("autopilot/route-manager/route/wp["~(cduWpOffset+4)~"]/leg-distance-nm"))~" NM";
+					output.centerTitle[4] = sprintf("%3.0f", getprop("autopilot/route-manager/route/wp["~(cduWpOffset+4)~"]/leg-distance-nm"))~" NM";
 				}
-				line4r = formatAltitude(4);
+				output.right[3] = formatAltitude(4);
 				if (getprop("autopilot/route-manager/route/wp["~(cduWpOffset+4)~"]/speed-kts") != nil){
-					line4r = getprop("autopilot/route-manager/route/wp["~(cduWpOffset+4)~"]/speed-kts")~"/"~sprintf("%5.0f", getprop("autopilot/route-manager/route/wp["~(cduWpOffset+4)~"]/altitude-ft"));
+					output.right[3] = getprop("autopilot/route-manager/route/wp["~(cduWpOffset+4)~"]/speed-kts")~"/"~sprintf("%5.0f", getprop("autopilot/route-manager/route/wp["~(cduWpOffset+4)~"]/altitude-ft"));
 					}
 				}
 			if (getprop("autopilot/route-manager/route/wp["~(cduWpOffset+5)~"]/id") != nil){
 				if (getprop("autopilot/route-manager/route/wp["~(cduWpOffset+5)~"]/leg-bearing-true-deg") != nil){
-					line5lt = sprintf("%3.0f", getprop("autopilot/route-manager/route/wp["~(cduWpOffset+5)~"]/leg-bearing-true-deg"));
+					output.leftTitle[4] = sprintf("%3.0f", getprop("autopilot/route-manager/route/wp["~(cduWpOffset+5)~"]/leg-bearing-true-deg"));
 				}
-				line5l = getprop("autopilot/route-manager/route/wp["~(cduWpOffset+5)~"]/id");
-				line5r = formatAltitude(5);
+				output.left[4] = getprop("autopilot/route-manager/route/wp["~(cduWpOffset+5)~"]/id");
+				output.right[4] = formatAltitude(5);
 				if (getprop("autopilot/route-manager/route/wp["~(cduWpOffset+5)~"]/speed-kts") != nil){
-					line4r = getprop("autopilot/route-manager/route/wp["~(cduWpOffset+5)~"]/speed-kts")~"/"~sprintf("%5.0f", getprop("autopilot/route-manager/route/wp["~(cduWpOffset+5)~"]/altitude-ft"));
+					output.right[3] = getprop("autopilot/route-manager/route/wp["~(cduWpOffset+5)~"]/speed-kts")~"/"~sprintf("%5.0f", getprop("autopilot/route-manager/route/wp["~(cduWpOffset+5)~"]/altitude-ft"));
 					}
 				}
-			line6l = "<RTE 2 LEGS";
+			output.left[5] = "<RTE 2 LEGS";
 			if (getprop("autopilot/route-manager/active") == 1){
-				line6r = "RTE DATA>";
+				output.right[5] = "RTE DATA>";
 				}
 			else{
-				line6r = "ACTIVATE>";
+				output.right[5] = "ACTIVATE>";
 				}
 		}
 		if (display == "THR_LIM") {
-			title = "THRUST LIM";
-			line1lt = "SEL";
-			line1ct = "OAT";
-			line1c = sprintf("%2.0f", getprop("environment/temperature-degc"))~" °C";
-			line1rt = "TO 1 N1";
-			line2l = "<TO";
-			line2r = "CLB>";
-			line3lt = "TO 1";
-			line3l = "<-10%";
-			line3c = "<SEL> <ARM>";
-			line3r = "CLB 1>";
-			line4lt = "TO 2";
-			line4l = "<-20%";
-			line4r = "CLB 2>";
-			line6l = "<INDEX";
-			line6r = "TAKEOFF>";
+			output.title = "THRUST LIM";
+			output.leftTitle[0] = "SEL";
+			output.centerTitle[0] = "OAT";
+			output.center[0] = sprintf("%2.0f", getprop("environment/temperature-degc"))~" °C";
+			output.rightTitle[0] = "TO 1 N1";
+			output.left[1] = "<TO";
+			output.right[1] = "CLB>";
+			output.leftTitle[2] = "TO 1";
+			output.left[2] = "<-10%";
+			output.center[2] = "<SEL> <ARM>";
+			output.right[2] = "CLB 1>";
+			output.leftTitle[3] = "TO 2";
+			output.left[3] = "<-20%";
+			output.right[3] = "CLB 2>";
+			output.left[5] = "<INDEX";
+			output.right[5] = "TAKEOFF>";
 		}
 		if (display == "TO_REF") {
-			title = "TAKEOFF REF";
-			line1lt = "FLAP/ACCEL HT";
-			line1l = sprintf("%2.0f", getprop("instrumentation/fmc/to-flap"));
-			line1rt = "REF V1";
+			output.title = "TAKEOFF REF";
+			output.leftTitle[0] = "FLAP/ACCEL HT";
+			output.left[0] = sprintf("%2.0f", getprop("instrumentation/fmc/to-flap"));
+			output.rightTitle[0] = "REF V1";
 			if (getprop("instrumentation/fmc/vspeeds/V1") != nil){
-				line1r = sprintf("%3.0f", getprop("instrumentation/fmc/vspeeds/V1"));
+				output.right[0] = sprintf("%3.0f", getprop("instrumentation/fmc/vspeeds/V1"));
 			}
-			line2lt = "E/O ACCEL HT";
-			line2rt = "REF VR";
+			output.leftTitle[1] = "E/O ACCEL HT";
+			output.rightTitle[1] = "REF VR";
 			if (getprop("instrumentation/fmc/vspeeds/VR") != nil){
-				line2r = sprintf("%3.0f", getprop("instrumentation/fmc/vspeeds/VR"));
+				output.right[1] = sprintf("%3.0f", getprop("instrumentation/fmc/vspeeds/VR"));
 			}
-			line3lt = "THR REDUCTION";
-			line3rt = "REF V2";
+			output.leftTitle[2] = "THR REDUCTION";
+			output.rightTitle[2] = "REF V2";
 			if (getprop("instrumentation/fmc/vspeeds/V2") != nil){
-				line3r = sprintf("%3.0f", getprop("instrumentation/fmc/vspeeds/V2"));
+				output.right[2] = sprintf("%3.0f", getprop("instrumentation/fmc/vspeeds/V2"));
 			}
-			line4lt = "WIND/SLOPE";
-			line4rt = "TRIM   CG";
-			line5rt = "POS SHIFT";
-			line6l = "<INDEX";
-			line6r = "POS INIT>";
+			output.leftTitle[3] = "WIND/SLOPE";
+			output.rightTitle[3] = "TRIM   CG";
+			output.rightTitle[4] = "POS SHIFT";
+			output.left[5] = "<INDEX";
+			output.right[5] = "POS INIT>";
 		}
 		
 		if (serviceable != 1){
-			title = "";		page = "";
-			line1l = "";	line2l = "";	line3l = "";	line4l = "";	line5l = "";	line6l = "";
-			line1lt = "";	line2lt = "";	line3lt = "";	line4lt = "";	line5lt = "";	line6lt = "";
-			line1c = "";	line2c = "";	line3c = "";	line4c = "";	line5c = "";	line6c = "";
-			line1ct = "";	line2ct = "";	line3ct = "";	line4ct = "";	line5ct = "";	line6ct = "";
-			line1r = "";	line2r = "";	line3r = "";	line4r = "";	line5r = "";	line6r = "";
-			line1rt = "";	line2rt = "";	line3rt = "";	line4rt = "";	line5rt = "";	line6rt = "";
+			output.title = "";		output.page = "";
+			output.title = "";
+      output.page = "";
+      output.leftTitle = [ "", "", "", "", "", "" ];
+      output.left = [ "", "", "", "", "", "" ];
+      output.centerTitle = [ "", "", "", "", "", "" ];
+      output.center = [ "", "", "", "", "", "" ];
+      output.rightTitle = [ "", "", "", "", "", "" ];
+      output.right = [ "", "", "", "", "", "" ];
 		}
 		
-		setprop("instrumentation/cdu/output/title",title);
-		setprop("instrumentation/cdu/output/page",page);
-		setprop("instrumentation/cdu/output/line1/left",line1l);
-		setprop("instrumentation/cdu/output/line2/left",line2l);
-		setprop("instrumentation/cdu/output/line3/left",line3l);
-		setprop("instrumentation/cdu/output/line4/left",line4l);
-		setprop("instrumentation/cdu/output/line5/left",line5l);
-		setprop("instrumentation/cdu/output/line6/left",line6l);
-		setprop("instrumentation/cdu/output/line1/left-title",line1lt);
-		setprop("instrumentation/cdu/output/line2/left-title",line2lt);
-		setprop("instrumentation/cdu/output/line3/left-title",line3lt);
-		setprop("instrumentation/cdu/output/line4/left-title",line4lt);
-		setprop("instrumentation/cdu/output/line5/left-title",line5lt);
-		setprop("instrumentation/cdu/output/line6/left-title",line6lt);
-		setprop("instrumentation/cdu/output/line1/center",line1c);
-		setprop("instrumentation/cdu/output/line2/center",line2c);
-		setprop("instrumentation/cdu/output/line3/center",line3c);
-		setprop("instrumentation/cdu/output/line4/center",line4c);
-		setprop("instrumentation/cdu/output/line5/center",line5c);
-		setprop("instrumentation/cdu/output/line6/center",line6c);
-		setprop("instrumentation/cdu/output/line1/center-title",line1ct);
-		setprop("instrumentation/cdu/output/line2/center-title",line2ct);
-		setprop("instrumentation/cdu/output/line3/center-title",line3ct);
-		setprop("instrumentation/cdu/output/line4/center-title",line4ct);
-		setprop("instrumentation/cdu/output/line5/center-title",line5ct);
-		setprop("instrumentation/cdu/output/line6/center-title",line6ct);
-		setprop("instrumentation/cdu/output/line1/right",line1r);
-		setprop("instrumentation/cdu/output/line2/right",line2r);
-		setprop("instrumentation/cdu/output/line3/right",line3r);
-		setprop("instrumentation/cdu/output/line4/right",line4r);
-		setprop("instrumentation/cdu/output/line5/right",line5r);
-		setprop("instrumentation/cdu/output/line6/right",line6r);
-		setprop("instrumentation/cdu/output/line1/right-title",line1rt);
-		setprop("instrumentation/cdu/output/line2/right-title",line2rt);
-		setprop("instrumentation/cdu/output/line3/right-title",line3rt);
-		setprop("instrumentation/cdu/output/line4/right-title",line4rt);
-		setprop("instrumentation/cdu/output/line5/right-title",line5rt);
-		setprop("instrumentation/cdu/output/line6/right-title",line6rt);
+		setprop("instrumentation/cdu/output/title",output.title);
+		setprop("instrumentation/cdu/output/page",output.page);
+    for (i = 0; i < 6;  i += 1) { 
+		  setprop("instrumentation/cdu/output/line"~( i + 1 )~"/left-title",output.leftTitle[i]);
+      setprop("instrumentation/cdu/output/line"~( i + 1 )~"/left",output.left[i]);
+		  setprop("instrumentation/cdu/output/line"~( i + 1 )~"/center-title",output.centerTitle[i]);
+      setprop("instrumentation/cdu/output/line"~( i + 1 )~"/center",output.center[i]);
+		  setprop("instrumentation/cdu/output/line"~( i + 1 )~"/right-title",output.rightTitle[i]);
+      setprop("instrumentation/cdu/output/line"~( i + 1 )~"/right",output.right[i]);
+    }
 		settimer(cdu,0.2);
     }
 _setlistener("sim/signals/fdm-initialized", cdu); 
