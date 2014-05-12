@@ -142,7 +142,11 @@ var cduHold = {
         me.holdLegIndex = 0;
       }
       print("DEBUG: CDU Hold: Fly to wp ", me.holdLegIndex, ": ", flyTo);
+      var index = getprop("autopilot/route-manager/current-wp");
+      setprop("autopilot/route-manager/input","@INSERT"~index~":"~me.holdLegs[0]);
       
+      setprop("autopilot/route-manager/input","@INSERT"~(index+1)~":"~me.holdLegs[1]);
+      setprop("autopilot/route-manager/current-wp", index);
     }
   }
 };
