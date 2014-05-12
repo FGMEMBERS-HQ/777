@@ -78,6 +78,75 @@ var cduSelectWaypoint = func(wpIndex, cduInput) {
   return cduInput;
 }
 
+var cduHold = {
+  active : 0,
+  fix : "",
+  hdg : 0,
+  distance : 4,
+  turnLeft : 1,
+  holdLegs : [],
+  holdLegIndex : 0,
+  listener : nil,
+  
+  render : func(output) {
+    output.title          = "HOLD";
+    output.leftTitle[0]   = "Hold fix";
+    output.left[0]        = me.fix;
+    output.leftTitle[1]   = "Heading";
+    output.left[1]        = sprintf("%3d",me.hdg);
+    output.rightTitle[0]  = "Distance [nm]";
+    output.right[0]       = sprintf("%2.1f", me.distance);
+    output.rightTitle[1]  = "Turn";
+    output.right[1]       = (me.turnLeft) ? "LEFT" : "RIGHT"; 
+    output.right[5]       = (me.active) ? "LEAVE HOLD>" : "ENTER HOLD>";    
+  },
+  
+  lskPressed : func(key, cduInput) {
+    if (key == "LSK1L") {
+      me.fix = cduInput;
+    }
+    else if ( key == "LSK2L" ) {
+      me.hdg = cduInput;
+    }
+    else if ( key == "LSK1R" ) {
+      me.distance = cduInput;
+    }
+    else if ( key == "LSK2R" ) {
+      me.turnLeft = (me.turnLeft) ? 0 : 1;
+      return cduInput;
+    }
+    else if ( key == "LSK6R" ) {
+      me.active = (me.active) ? 0 : 1;
+      if (me.active) {
+        me.holdLegs = [ 
+          me.fix, 
+          me.fix~"/"~sprintf("%3d",me.hdg)~"/"~sprintf("%2.1f", me.distance) 
+        ];
+        me.createHoldWPs();
+        
+      }
+      else {
+        print("DEBUG: CDU Hold, deactivate hold.");
+        
+      }
+      return cduInput;
+    }
+    return "";
+  },  
+  
+  createHoldWPs : func() {
+    if (me.active) {
+      var flyTo = me.holdLegs[me.holdLegIndex];
+      me.holdLegIndex = me.holdLegIndex + 1;
+      if (me.holdLegIndex >= size(me.holdLegs)) {
+        me.holdLegIndex = 0;
+      }
+      print("DEBUG: CDU Hold: Fly to wp ", me.holdLegIndex, ": ", flyTo);
+      
+    }
+  }
+};
+
 var key = func(v) {
 		var cduDisplay = getprop("instrumentation/cdu/display");
 		var serviceable = getprop("instrumentation/cdu/serviceable");
@@ -85,198 +154,204 @@ var key = func(v) {
 		var cduInput = getprop("instrumentation/cdu/input");
 		
 		if (serviceable == 1){
-			if (v == "LSK1L"){
-				if (cduDisplay == "DEP_ARR_INDEX"){
-					cduDisplay = "RTE1_DEP";
-				}
-				if (cduDisplay == "EICAS_MODES"){
-					eicasDisplay = "ENG";
-				}
-				if (cduDisplay == "EICAS_SYN"){
-					eicasDisplay = "ELEC";
-				}
-				if (cduDisplay == "INIT_REF"){
-					cduDisplay = "IDENT";
-				}
-				if (cduDisplay == "NAV_RAD"){
-					setprop("instrumentation/nav[0]/frequencies/selected-mhz",cduInput);
-					cduInput = "";
-				}
-				if (cduDisplay == "RTE1_1"){
-					setprop("autopilot/route-manager/departure/airport",cduInput);
-					cduInput = "";
-				}
-				if (cduDisplay == "RTE1_LEGS"){
-					cduInput = cduLegsLeftLSKPressed(1, cduInput);
-				}
-				if (cduDisplay == "TO_REF"){
-					setprop("instrumentation/fmc/to-flap",cduInput);
-					cduInput = "";
-				}
-			}
-			if (v == "LSK1R"){
-				if (cduDisplay == "EICAS_MODES"){
-					eicasDisplay = "FUEL";
-				}
-				if (cduDisplay == "EICAS_SYN"){
-					eicasDisplay = "HYD";
-				}
-				if (cduDisplay == "NAV_RAD"){
-					setprop("instrumentation/nav[1]/frequencies/selected-mhz",cduInput);
-					cduInput = "";
-				}
-				if (cduDisplay == "RTE1_1"){
-					setprop("autopilot/route-manager/destination/airport",cduInput);
-					cduInput = "";
-				}
-				if (cduDisplay == "RTE1_LEGS"){
-					cduLegsSetAltWP(1, cduInput);
-					cduInput = "";
-				}
-			}
-			if (v == "LSK2L"){
-				if (cduDisplay == "EICAS_MODES"){
-					eicasDisplay = "STAT";
-				}
-				if (cduDisplay == "EICAS_SYN"){
-					eicasDisplay = "ECS";
-				}
-        if (cduDisplay == "NAV_RAD"){
-					setprop("instrumentation/nav[0]/radials/selected-deg",cduInput);
-					cduInput = "";
-				}
-				if (cduDisplay == "POS_INIT"){
-					setprop("instrumentation/fmc/ref-airport",cduInput);
-					cduInput = "";;
-				}
-				if (cduDisplay == "INIT_REF"){
-					cduDisplay = "POS_INIT";
-				}
-				if (cduDisplay == "RTE1_1"){
-					setprop("autopilot/route-manager/departure/runway",cduInput);
-					cduInput = "";;
-				}
-				if (cduDisplay == "RTE1_LEGS"){
-					cduInput = cduLegsLeftLSKPressed(2, cduInput);
-				}
-			}
-			if (v == "LSK2R"){
-				if (cduDisplay == "DEP_ARR_INDEX"){
-					cduDisplay = "RTE1_ARR";
-				}
-				else if (cduDisplay == "EICAS_MODES"){
-					eicasDisplay = "GEAR";
-				}
-				else if (cduDisplay == "EICAS_SYN"){
-					eicasDisplay = "DRS";
-				}
-        if (cduDisplay == "NAV_RAD"){
-					setprop("instrumentation/nav[1]/radials/selected-deg",cduInput);
-					cduInput = "";
-				}
-				else if (cduDisplay == "MENU"){
-					eicasDisplay = "EICAS_MODES";
-				}
-				else if (cduDisplay == "RTE1_LEGS"){
-					cduLegsSetAltWP(2, cduInput);
-					cduInput = "";
-				}
-			}
-			if (v == "LSK3L"){
-				if (cduDisplay == "INIT_REF"){
-					cduDisplay = "PERF_INIT";
-				}
-				if (cduDisplay == "RTE1_LEGS"){
-					cduInput = cduLegsLeftLSKPressed(3, cduInput);
-				}
-			}
-			if (v == "LSK3R"){
-				if (cduDisplay == "RTE1_LEGS"){
-					cduLegsSetAltWP(3, cduInput);
-					cduInput = "";
-				}
-			}
-			if (v == "LSK4L"){
-				if (cduDisplay == "INIT_REF"){
-					cduDisplay = "THR_LIM";
-				}
-				if (cduDisplay == "RTE1_LEGS"){
-					cduInput = cduLegsLeftLSKPressed(4, cduInput);
-				}
-			}
-			if (v == "LSK4R"){
-				if (cduDisplay == "RTE1_LEGS"){
-					cduLegsSetAltWP(4, cduInput);
-					cduInput = "";
-				}
-			}
-			if (v == "LSK5L"){
-				if (cduDisplay == "INIT_REF"){
-					cduDisplay = "TO_REF";
-				}
-				if (cduDisplay == "RTE1_LEGS"){
-					cduInput = cduLegsLeftLSKPressed(5, cduInput);
-				}
-			}
-			if (v == "LSK5R"){
-				if (cduDisplay == "RTE1_LEGS"){
-					cduLegsSetAltWP(5, cduInput);
-					cduInput = "";
-				}
-        if (cduDisplay == "NAV_RAD") {
-          var nav0freq = getprop("instrumentation/nav[0]/frequencies/selected-mhz");
-          var nav0rad = getprop("instrumentation/nav[0]/radials/selected-deg");
-          var nav1freq = getprop("instrumentation/nav[1]/frequencies/selected-mhz");
-          var nav1rad = getprop("instrumentation/nav[1]/radials/selected-deg");
-          
-          print("VOR1"~nav0freq);
-          
-          setprop("instrumentation/nav[0]/frequencies/selected-mhz",nav1freq);
-          setprop("instrumentation/nav[0]/radials/selected-deg",nav1rad);
-          setprop("instrumentation/nav[1]/frequencies/selected-mhz",nav0freq);
-          setprop("instrumentation/nav[1]/radials/selected-deg",nav0rad);
+      # dispatch by page (new)
+      if (cduDisplay == "HOLD") {
+        cduInput = cduHold.lskPressed(v, cduInput);
+      }
+      else { # dispatch by key (old)  
+        if (v == "LSK1L"){
+          if (cduDisplay == "DEP_ARR_INDEX"){
+            cduDisplay = "RTE1_DEP";
+          }
+          if (cduDisplay == "EICAS_MODES"){
+            eicasDisplay = "ENG";
+          }
+          if (cduDisplay == "EICAS_SYN"){
+            eicasDisplay = "ELEC";
+          }
+          if (cduDisplay == "INIT_REF"){
+            cduDisplay = "IDENT";
+          }
+          if (cduDisplay == "NAV_RAD"){
+            setprop("instrumentation/nav[0]/frequencies/selected-mhz",cduInput);
+            cduInput = "";
+          }
+          if (cduDisplay == "RTE1_1"){
+            setprop("autopilot/route-manager/departure/airport",cduInput);
+            cduInput = "";
+          }
+          if (cduDisplay == "RTE1_LEGS"){
+            cduInput = cduLegsLeftLSKPressed(1, cduInput);
+          }
+          if (cduDisplay == "TO_REF"){
+            setprop("instrumentation/fmc/to-flap",cduInput);
+            cduInput = "";
+          }
         }
-			}
-			if (v == "LSK6L"){
-				if (cduDisplay == "INIT_REF"){
-					cduDisplay = "APP_REF";
-				}
-				if (cduDisplay == "APP_REF"){
-					cduDisplay = "INIT_REF";
-				}
-				if ((cduDisplay == "IDENT") or (cduDisplay = "MAINT") or (cduDisplay = "PERF_INIT") or (cduDisplay = "POS_INIT") or (cduDisplay = "POS_REF") or (cduDisplay = "THR_LIM") or (cduDisplay = "TO_REF")){
-					cduDisplay = "INIT_REF";
-				}
-			}
-			if (v == "LSK6R"){
-				if (cduDisplay == "THR_LIM"){
-					cduDisplay = "TO_REF";
-				}
-				else if (cduDisplay == "APP_REF"){
-					cduDisplay = "THR_LIM";
-				}
-				else if ((cduDisplay == "RTE1_1") or (cduDisplay == "RTE1_LEGS")){
-					setprop("autopilot/route-manager/input","@ACTIVATE");
-				}
-				else if ((cduDisplay == "POS_INIT") or (cduDisplay == "DEP") or (cduDisplay == "RTE1_ARR") or (cduDisplay == "RTE1_DEP")){
-					cduDisplay = "RTE1_1";
-				}
-				else if ((cduDisplay == "IDENT") or (cduDisplay == "TO_REF")){
-					cduDisplay = "POS_INIT";
-				}
-				else if (cduDisplay == "EICAS_SYN"){
-					cduDisplay = "EICAS_MODES";
-				}
-				else if (cduDisplay == "EICAS_MODES"){
-					cduDisplay = "EICAS_SYN";
-				}
-				else if (cduDisplay == "INIT_REF"){
-					cduDisplay = "MAINT";
-				}
-			}
-      if (v == "EXEC"){
-        if (cduDisplay == "RTE1_LEGS") {
-          cduInput = cduSelectWaypoint(cduWpSelected, cduInput);
+        if (v == "LSK1R"){
+          if (cduDisplay == "EICAS_MODES"){
+            eicasDisplay = "FUEL";
+          }
+          if (cduDisplay == "EICAS_SYN"){
+            eicasDisplay = "HYD";
+          }
+          if (cduDisplay == "NAV_RAD"){
+            setprop("instrumentation/nav[1]/frequencies/selected-mhz",cduInput);
+            cduInput = "";
+          }
+          if (cduDisplay == "RTE1_1"){
+            setprop("autopilot/route-manager/destination/airport",cduInput);
+            cduInput = "";
+          }
+          if (cduDisplay == "RTE1_LEGS"){
+            cduLegsSetAltWP(1, cduInput);
+            cduInput = "";
+          }
+        }
+        if (v == "LSK2L"){
+          if (cduDisplay == "EICAS_MODES"){
+            eicasDisplay = "STAT";
+          }
+          if (cduDisplay == "EICAS_SYN"){
+            eicasDisplay = "ECS";
+          }
+          if (cduDisplay == "NAV_RAD"){
+            setprop("instrumentation/nav[0]/radials/selected-deg",cduInput);
+            cduInput = "";
+          }
+          if (cduDisplay == "POS_INIT"){
+            setprop("instrumentation/fmc/ref-airport",cduInput);
+            cduInput = "";;
+          }
+          if (cduDisplay == "INIT_REF"){
+            cduDisplay = "POS_INIT";
+          }
+          if (cduDisplay == "RTE1_1"){
+            setprop("autopilot/route-manager/departure/runway",cduInput);
+            cduInput = "";;
+          }
+          if (cduDisplay == "RTE1_LEGS"){
+            cduInput = cduLegsLeftLSKPressed(2, cduInput);
+          }
+        }
+        if (v == "LSK2R"){
+          if (cduDisplay == "DEP_ARR_INDEX"){
+            cduDisplay = "RTE1_ARR";
+          }
+          else if (cduDisplay == "EICAS_MODES"){
+            eicasDisplay = "GEAR";
+          }
+          else if (cduDisplay == "EICAS_SYN"){
+            eicasDisplay = "DRS";
+          }
+          if (cduDisplay == "NAV_RAD"){
+            setprop("instrumentation/nav[1]/radials/selected-deg",cduInput);
+            cduInput = "";
+          }
+          else if (cduDisplay == "MENU"){
+            eicasDisplay = "EICAS_MODES";
+          }
+          else if (cduDisplay == "RTE1_LEGS"){
+            cduLegsSetAltWP(2, cduInput);
+            cduInput = "";
+          }
+        }
+        if (v == "LSK3L"){
+          if (cduDisplay == "INIT_REF"){
+            cduDisplay = "PERF_INIT";
+          }
+          if (cduDisplay == "RTE1_LEGS"){
+            cduInput = cduLegsLeftLSKPressed(3, cduInput);
+          }
+        }
+        if (v == "LSK3R"){
+          if (cduDisplay == "RTE1_LEGS"){
+            cduLegsSetAltWP(3, cduInput);
+            cduInput = "";
+          }
+        }
+        if (v == "LSK4L"){
+          if (cduDisplay == "INIT_REF"){
+            cduDisplay = "THR_LIM";
+          }
+          if (cduDisplay == "RTE1_LEGS"){
+            cduInput = cduLegsLeftLSKPressed(4, cduInput);
+          }
+        }
+        if (v == "LSK4R"){
+          if (cduDisplay == "RTE1_LEGS"){
+            cduLegsSetAltWP(4, cduInput);
+            cduInput = "";
+          }
+        }
+        if (v == "LSK5L"){
+          if (cduDisplay == "INIT_REF"){
+            cduDisplay = "TO_REF";
+          }
+          if (cduDisplay == "RTE1_LEGS"){
+            cduInput = cduLegsLeftLSKPressed(5, cduInput);
+          }
+        }
+        if (v == "LSK5R"){
+          if (cduDisplay == "RTE1_LEGS"){
+            cduLegsSetAltWP(5, cduInput);
+            cduInput = "";
+          }
+          if (cduDisplay == "NAV_RAD") {
+            var nav0freq = getprop("instrumentation/nav[0]/frequencies/selected-mhz");
+            var nav0rad = getprop("instrumentation/nav[0]/radials/selected-deg");
+            var nav1freq = getprop("instrumentation/nav[1]/frequencies/selected-mhz");
+            var nav1rad = getprop("instrumentation/nav[1]/radials/selected-deg");
+            
+            print("VOR1"~nav0freq);
+            
+            setprop("instrumentation/nav[0]/frequencies/selected-mhz",nav1freq);
+            setprop("instrumentation/nav[0]/radials/selected-deg",nav1rad);
+            setprop("instrumentation/nav[1]/frequencies/selected-mhz",nav0freq);
+            setprop("instrumentation/nav[1]/radials/selected-deg",nav0rad);
+          }
+        }
+        if (v == "LSK6L"){
+          if (cduDisplay == "INIT_REF"){
+            cduDisplay = "APP_REF";
+          }
+          if (cduDisplay == "APP_REF"){
+            cduDisplay = "INIT_REF";
+          }
+          if ((cduDisplay == "IDENT") or (cduDisplay = "MAINT") or (cduDisplay = "PERF_INIT") or (cduDisplay = "POS_INIT") or (cduDisplay = "POS_REF") or (cduDisplay = "THR_LIM") or (cduDisplay = "TO_REF")){
+            cduDisplay = "INIT_REF";
+          }
+        }
+        if (v == "LSK6R"){
+          if (cduDisplay == "THR_LIM"){
+            cduDisplay = "TO_REF";
+          }
+          else if (cduDisplay == "APP_REF"){
+            cduDisplay = "THR_LIM";
+          }
+          else if ((cduDisplay == "RTE1_1") or (cduDisplay == "RTE1_LEGS")){
+            setprop("autopilot/route-manager/input","@ACTIVATE");
+          }
+          else if ((cduDisplay == "POS_INIT") or (cduDisplay == "DEP") or (cduDisplay == "RTE1_ARR") or (cduDisplay == "RTE1_DEP")){
+            cduDisplay = "RTE1_1";
+          }
+          else if ((cduDisplay == "IDENT") or (cduDisplay == "TO_REF")){
+            cduDisplay = "POS_INIT";
+          }
+          else if (cduDisplay == "EICAS_SYN"){
+            cduDisplay = "EICAS_MODES";
+          }
+          else if (cduDisplay == "EICAS_MODES"){
+            cduDisplay = "EICAS_SYN";
+          }
+          else if (cduDisplay == "INIT_REF"){
+            cduDisplay = "MAINT";
+          }
+        }
+        if (v == "EXEC"){
+          if (cduDisplay == "RTE1_LEGS") {
+            cduInput = cduSelectWaypoint(cduWpSelected, cduInput);
+          }
         }
       }
 			
@@ -716,6 +791,9 @@ var cdu = func{
 			output.left[5] = "<INDEX";
 			output.right[5] = "POS INIT>";
 		}
+    if (display == "HOLD") {
+      cduHold.render(output);
+    }
 		
 		if (serviceable != 1){
 			output.title = "";		output.page = "";
