@@ -82,11 +82,13 @@ var cduHold = {
   active : 0,
   fix : "",
   hdg : 0,
-  distance : 4,
+  distance : 4.0,
+  radius   : 1.0,
   turnLeft : 1,
   holdLegs : [],
-  holdLegIndex : 0,
-  listener : nil,
+  holdListenerID : nil,
+  reentryWP : -1,
+  finalHoldWP : -1,
   
   render : func(output) {
     output.title          = "HOLD";
@@ -94,10 +96,12 @@ var cduHold = {
     output.left[0]        = me.fix;
     output.leftTitle[1]   = "Heading";
     output.left[1]        = sprintf("%3d",me.hdg);
+    output.leftTitle[2]   = "Turn";
+    output.left[2]        = (me.turnLeft) ? "LEFT" : "RIGHT"; 
     output.rightTitle[0]  = "Distance [nm]";
     output.right[0]       = sprintf("%2.1f", me.distance);
-    output.rightTitle[1]  = "Turn";
-    output.right[1]       = (me.turnLeft) ? "LEFT" : "RIGHT"; 
+    output.rightTitle[1]  = "Width [nm]";
+    output.right[1]       = sprintf("%2.1f", me.radius * 2);
     output.right[5]       = (me.active) ? "LEAVE HOLD>" : "ENTER HOLD>";    
   },
   
@@ -108,26 +112,39 @@ var cduHold = {
     else if ( key == "LSK2L" ) {
       me.hdg = cduInput;
     }
+    else if ( key == "LSK3L" ) {
+      me.turnLeft = (me.turnLeft) ? 0 : 1;
+      return cduInput;
+    }
     else if ( key == "LSK1R" ) {
       me.distance = cduInput;
     }
     else if ( key == "LSK2R" ) {
-      me.turnLeft = (me.turnLeft) ? 0 : 1;
-      return cduInput;
+      me.radius = cduInput / 2.0;
     }
     else if ( key == "LSK6R" ) {
       me.active = (me.active) ? 0 : 1;
       if (me.active) {
-        me.holdLegs = [ 
-          me.fix, 
-          me.fix~"/"~sprintf("%3d",me.hdg)~"/"~sprintf("%2.1f", me.distance) 
-        ];
+        
         me.createHoldWPs();
+        
+        var loop = func() {
+          if (flightplan().current == cduHold.finalHoldWP ) {
+            print("DEBUG: CDU Hold, final WP reached... reentering!");
+            flightplan().current = cduHold.reentryWP;
+          }
+          else {
+            print("DEBUG: CDU Hold, loop on WP ", flightplan().current);
+          }
+        };
+        me.holdListenerID = setlistener('/autopilot/route-manager/current-wp', loop);
         
       }
       else {
-        print("DEBUG: CDU Hold, deactivate hold.");
-        
+        if (me.holdListenerID != nil) {
+          print("DEBUG: CDU Hold, deactivate hold.");
+          removelistener(me.holdListenerID);
+        }
       }
       return cduInput;
     }
@@ -136,17 +153,44 @@ var cduHold = {
   
   createHoldWPs : func() {
     if (me.active) {
-      var flyTo = me.holdLegs[me.holdLegIndex];
-      me.holdLegIndex = me.holdLegIndex + 1;
-      if (me.holdLegIndex >= size(me.holdLegs)) {
-        me.holdLegIndex = 0;
-      }
-      print("DEBUG: CDU Hold: Fly to wp ", me.holdLegIndex, ": ", flyTo);
-      var index = getprop("autopilot/route-manager/current-wp");
-      setprop("autopilot/route-manager/input","@INSERT"~index~":"~me.holdLegs[0]);
+      # calculate waypoints...
+      var turn = (me.turnLeft) ? 1 : -1;
+      var alpha = turn * 63.4;
+      var dH2 = 2.236 * me.radius;
+      var beta = turn * 360 * math.atan2( 2 * me.radius , (me.radius + me.distance) ) / ( 2 * math.pi );
+      var dH3 = math.sqrt( me.radius * me.radius * 4 + (me.radius + me.distance) * (me.radius + me.distance) );
       
-      setprop("autopilot/route-manager/input","@INSERT"~(index+1)~":"~me.holdLegs[1]);
-      setprop("autopilot/route-manager/current-wp", index);
+      var _deg = func(hdg) { return (hdg < 0) ? (hdg + 360) : ( (hdg >= 360) ? (hdg - 360) : hdg ); }
+      var _formatLeg = func(fix, hdg, dist) {
+        return fix ~ "/" ~sprintf("%3d",hdg)~"/"~sprintf("%2.1f", dist);
+      };
+      # calculate WP 3 miles ahead
+      var ahead = geo.Coord.new();
+      ahead.set_latlon(getprop('/position/latitude-deg'), getprop('/position/longitude-deg'));
+      ahead.apply_course_distance(getprop('/orientation/heading-deg'), 3 * 1852 ); 
+      
+      me.holdLegs = [ 
+          ahead.lon()~','~ahead.lat(),
+          me.fix,
+          _formatLeg(me.fix, me.hdg, me.radius),
+          _formatLeg(me.fix, _deg(me.hdg - alpha), dH2),
+          _formatLeg(me.fix, _deg(me.hdg + 180 + beta), dH3),
+          _formatLeg(me.fix, _deg(me.hdg + 180), me.distance + me.radius),
+          me.fix,
+      ];
+      
+      var curWpIdx = getprop("autopilot/route-manager/current-wp");
+      
+      for (i=0; i<size(me.holdLegs); i += 1) {
+        print("DEBUG: CDU Hold: Inserting HOLD wp ", i , ": ", me.holdLegs[i]);
+        setprop("autopilot/route-manager/input","@INSERT"~(curWpIdx + i)~":"~me.holdLegs[i]);
+      }
+      # set finalWP and reentryWP for loop...
+      me.reentryWP = curWpIdx + 2;
+      me.finalHoldWP = curWpIdx + 6;
+      
+      print("DEBUG: CDU Hold: Flying to wp ", me.holdLegs[0]);
+      setprop("autopilot/route-manager/current-wp", curWpIdx);
     }
   }
 };
