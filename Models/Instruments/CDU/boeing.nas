@@ -148,10 +148,11 @@ var cduHold = {
           removelistener(me.holdListenerID);
           
           # premature end... (if on the final leg of the hold)
-          # var oneLoopAhead = flightplan().current + size(cduHold.holdLegs);
-          # if (oneLoopAhead < me.exitWP) {
-          #   flightplan().current = oneLoopAhead;
-          # }
+          var oneLoopAhead = flightplan().current + size(cduHold.holdLegs);
+          if (oneLoopAhead < me.exitWP) {
+            print("DEBUG: CDU Hold, exiting hold earlier.");
+            flightplan().current = oneLoopAhead;
+          }
         }
       }
       return cduInput;
