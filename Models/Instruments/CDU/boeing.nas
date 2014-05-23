@@ -82,6 +82,8 @@ var cduHold = {
   active : 0,
   fix : "",
   hdg : 0,
+  minutes : 4,
+  speedKts : 250.0,
   distance : 4.0,
   radius   : 1.0,
   turnLeft : 1,
@@ -98,10 +100,10 @@ var cduHold = {
     output.left[1]        = sprintf("%3d",me.hdg);
     output.leftTitle[2]   = "Turn";
     output.left[2]        = (me.turnLeft) ? "LEFT" : "RIGHT"; 
-    output.rightTitle[0]  = "Distance [nm]";
-    output.right[0]       = sprintf("%2.1f", me.distance);
-    output.rightTitle[1]  = "Width [nm]";
-    output.right[1]       = sprintf("%2.1f", me.radius * 2);
+    output.rightTitle[0]  = "Time in Hold [min]";
+    output.right[0]       = sprintf("%2.1f", me.minutes);
+    output.rightTitle[1]  = "Speed [kts]";
+    output.right[1]       = sprintf("%3.1f", me.speedKts);
     output.right[5]       = (me.active) ? "LEAVE HOLD>" : "ENTER HOLD>";    
   },
   
@@ -117,10 +119,10 @@ var cduHold = {
       return cduInput;
     }
     else if ( key == "LSK1R" ) {
-      me.distance = cduInput;
+      me.minutes = cduInput;
     }
     else if ( key == "LSK2R" ) {
-      me.radius = cduInput / 2.0;
+      me.speedKts = cduInput;
     }
     else if ( key == "LSK6R" ) {
       me.active = (me.active) ? 0 : 1;
@@ -162,6 +164,10 @@ var cduHold = {
   
   createHoldWPs : func() {
     if (me.active) {
+      # calculate distance and radius...
+      me.distance = me.minutes * me.speedKts / 240;
+      me.radius = me.distance / math.pi;
+      
       # calculate waypoints...
       var turn = (me.turnLeft) ? 1 : -1;
       var alpha = turn * 63.4;
