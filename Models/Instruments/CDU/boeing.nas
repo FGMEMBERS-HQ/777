@@ -134,8 +134,8 @@ var cduHold = {
           var cur = flightplan().current;
           if (cur == cduHold.exitWP-1 ) {
             print("DEBUG: CDU Hold, end of hold reached... preparing for another round!");
-            cduHold.exitWP = cduHold.insertLegs( cduHold.holdLegs, cduHold.exitWP );
-            setprop('autopilot/route-manager/current-wp', cur-1);
+            var oneLoopBefore = flightplan().current - size(cduHold.holdLegs);
+            setprop('autopilot/route-manager/current-wp', oneLoopBefore);
           }
           else {
             print("DEBUG: CDU Hold, loop on WP ", flightplan().current);
