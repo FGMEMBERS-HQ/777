@@ -168,34 +168,55 @@ var cduHold = {
       me.distance = me.minutes * me.speedKts / 240;
       me.radius = me.distance / math.pi;
       
-      # calculate waypoints...
-      var turn = (me.turnLeft) ? 1 : -1;
-      var alpha = turn * 63.4;
-      var dH2 = 2.236 * me.radius;
-      var beta = turn * 360 * math.atan2( 2 * me.radius , (me.radius + me.distance) ) / ( 2 * math.pi );
-      var dH3 = math.sqrt( me.radius * me.radius * 4 + (me.radius + me.distance) * (me.radius + me.distance) );
       
-      var _deg = func(hdg) { return (hdg < 0) ? (hdg + 360) : ( (hdg >= 360) ? (hdg - 360) : hdg ); }
-      var _formatLeg = func(fix, hdg, dist) {
-        return fix ~ "/" ~sprintf("%3d",hdg)~"/"~sprintf("%2.1f", dist);
-      };
+      var _deg = func(hdg) { return (hdg < 0) ? (hdg + 360) : ( (hdg >= 360) ? (hdg - 360) : hdg ); };
+      var _formatPos = func(pos) { return pos.lon() ~ ',' ~ pos.lat(); }; 
+      
       # calculate WP 3 miles ahead
       var ahead = geo.Coord.new();
       ahead.set_latlon(getprop('position/latitude-deg'), getprop('position/longitude-deg'));
       ahead.apply_course_distance(getprop('orientation/heading-deg'), 3 * 1852 ); 
       
+      
+      # calculate waypoints...
+      var turn = (me.turnLeft) ? -1 : 1;
+      var rm = me.radius * 1852;
+      var m1 = me._getNavaidPosition(me.fix).apply_course_distance(_deg(me.hdg + turn * 90), rm);
+      var m2 = (geo.Coord.new(m1)).apply_course_distance(_deg(me.hdg + 180), me.distance * 1852);
+      
+      var _createArcPoint = func(m, r, c) {
+        var p = (geo.Coord.new(m)).apply_course_distance(_deg(me.hdg + turn * (c - 90)), r);
+        return _formatPos(p);
+      }
+      
+      
       var entryLeg = [
-          ahead.lon()~','~ahead.lat(),
-          _formatLeg(me.fix, _deg(me.hdg + 180), me.distance),
-          me.fix
+        _formatPos(ahead),
+        _createArcPoint(m2, rm, 0),
+        me.fix,  
       ];
       
-      me.holdLegs = [ 
-          _formatLeg(me.fix, me.hdg, me.radius),
-          _formatLeg(me.fix, _deg(me.hdg - alpha), dH2),
-          _formatLeg(me.fix, _deg(me.hdg + 180 + beta), dH3),
-          _formatLeg(me.fix, _deg(me.hdg + 180), me.distance + me.radius),
-          me.fix,
+      me.holdLegs = [
+        _createArcPoint(m1, rm, 20),
+        _createArcPoint(m1, rm, 40),
+        _createArcPoint(m1, rm, 60),
+        _createArcPoint(m1, rm, 80),
+        _createArcPoint(m1, rm, 100),
+        _createArcPoint(m1, rm, 120),
+        _createArcPoint(m1, rm, 140),
+        _createArcPoint(m1, rm, 160),
+        _createArcPoint(m1, rm, 180),
+        _createArcPoint(m2, rm, 180),
+        _createArcPoint(m2, rm, 200),
+        _createArcPoint(m2, rm, 220),
+        _createArcPoint(m2, rm, 240),
+        _createArcPoint(m2, rm, 260),
+        _createArcPoint(m2, rm, 280),
+        _createArcPoint(m2, rm, 300),
+        _createArcPoint(m2, rm, 320),
+        _createArcPoint(m2, rm, 340),
+        _createArcPoint(m2, rm, 0),
+        me.fix
       ];
       
       var curWpIdx = getprop("autopilot/route-manager/current-wp");
@@ -213,7 +234,20 @@ var cduHold = {
       setprop("autopilot/route-manager/input","@INSERT"~(index + i)~":"~legs[i]);
     }
     return index + size(legs);
+  },
+  
+  _getNavaidPosition: func(ident) {
+    var navaids = positioned.sortByRange( positioned.findByIdent( ident , "fix,vor,ndb,tacan,airport") );
+    foreach ( var navaid ; navaids) {
+      if (ident == navaid.id) {    
+        var pos = geo.Coord.new();
+        pos.set_latlon( navaid.lat, navaid.lon );
+        return pos;
+      }
+    }
+    return nil;
   }
+  
 };
 
 var key = func(v) {
