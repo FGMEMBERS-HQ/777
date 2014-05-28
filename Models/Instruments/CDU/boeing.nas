@@ -1,82 +1,174 @@
 var input = func(v) {
-		setprop("instrumentation/cdu/input",getprop("instrumentation/cdu/input")~v);
-	}
-	
-var input = func(v) {
-		setprop("instrumentation/cdu/input",getprop("instrumentation/cdu/input")~v);
-	}
+	setprop("instrumentation/cdu/input",getprop("instrumentation/cdu/input")~v);
+}
+
+var _cduPageParent = {
+  LSK_LEFT_KEYS : [ "LSK1L", "LSK2L", "LSK3L", "LSK4L", "LSK5L", "LSK6L" ],
+  LSK_RIGHT_KEYS : [ "LSK1R", "LSK2R", "LSK3R", "LSK4R", "LSK5R", "LSK6R" ],
   
-var cduWpOffset = 0;
-var cduWpSelected = -1;
-
-var cduLegsDeleteWP = func(pos) {
-  var index = pos + cduWpOffset;
-  setprop("autopilot/route-manager/input","@DELETE"~index);
-  #print("DEBUG: Delete WP at position ", index, ", (offset=", cduWpOffset, ")");
-}
-
-var cduLegsInsertWP = func(pos, fix) {
-  var index = pos + cduWpOffset;
-  setprop("autopilot/route-manager/input","@INSERT"~index~":"~fix);
-  #print("DEBUG: Insert WP '", fix, "' at position ", index, ", (offset=", cduWpOffset, ")");
-}
-
-var cduLegsSetAltWP = func(pos, altitude) {
-  var index = pos + cduWpOffset;
-  #print("DEBUG: Set altitute ", altitude, " of WP ", index, ", (offset=", cduWpOffset, ")");
-  setprop("autopilot/route-manager/route/wp["~index~"]/altitude-ft",altitude);
-  if (substr(altitude,0,2) == "FL"){
-    setprop("autopilot/route-manager/route/wp["~index~"]/altitude-ft",substr(altitude,2)*100);
+  isLSKLeft : func(v) {
+    for (var i=0; i<6; i=i+1) {
+      if (v == me.LSK_LEFT_KEYS[i]) return 1;
+    }
+    return 0;
+  },
+  isLSKRight : func(v) {
+    for (var i=0; i<6; i=i+1) {
+      if (v == me.LSK_RIGHT_KEYS[i]) return 1;
+    }
+    return 0;
+  },
+  getLSKLine : func(v) {
+    for (var i=0; i<6; i=i+1) {
+      if (v == me.LSK_LEFT_KEYS[i] or v == me.LSK_RIGHT_KEYS[i]) {
+        return i;
+      }
+    }
+    return -1;
   }
-}
+};
 
-var cduLegsScrollWP = func(relative) {
-  var index = cduWpOffset + relative;
-  var numberOfWPs = size(props.globals.getNode("autopilot/route-manager/route").getChildren("wp"));
+var cduLegs = {
+  parents: [ _cduPageParent ],
+  page: 0,
+  selectedWpIndex: -1,
   
-  #print("DEBUG: cduLegsScrollWP newIndex=", index, ", numberOfWPs=", numberOfWPs);
-  if (index < 0) {
-    cduWpOffset = 0;
-  }
-  else if (index < numberOfWPs-4) {
-    cduWpOffset = index;
-  }
-  #print("DEBUG: cduLegsScrollWP new cduWpOffset=", cduWpOffset);
-}
-
-var cduLegsLeftLSKPressed = func(index, cduInput) {
-  cduWpSelected = -1;
-  if (cduInput == nil or cduInput == "") {
-    var wpIndex = cduWpOffset + index;
-    var curWp = getprop("autopilot/route-manager/route/wp["~wpIndex~"]/id");
-    if ( curWp != nil){
-      cduWpSelected = wpIndex;
-      return curWp;
+  scrollPage : func(direction) {
+    var newPage = me.page + direction;
+    if (newPage>=0 and newPage<me.getPageCount()) {
+      me.page = newPage;
+    }
+  },
+  
+  lskPressed : func(key, cduInput) {
+    var line = me.getLSKLine(key);
+    
+    if (me.isLSKLeft(key)) {
+      if (line >=0 and line <5) {
+        return me.addOrDeleteWaypoint(me.page * 5 + line, cduInput);
+      }
+    }
+    else if (me.isLSKRight(key)) {
+      if (line >=0 and line <5) {
+        me.setAltitude(me.page * 5 + line, cduInput);
+        return "";
+      }
+      if (line == 5) {
+        setprop("autopilot/route-manager/input","@ACTIVATE");
+        return "";
+      }
+    }
+    else if (key == "EXEC"){
+      return me.jumpToSelectedWaypoint(cduInput);
+    }
+  },
+  
+  addOrDeleteWaypoint : func(wpIndex, cduInput) {
+    me.selectedWpIndex = -1;
+    if (cduInput == nil or cduInput == "") {
+      var curWp = getprop("autopilot/route-manager/route/wp["~wpIndex~"]/id");
+      if ( curWp != nil){
+        me.selectedWpIndex = wpIndex;
+        return curWp;
+      }
+      else {
+        return "";
+      }
+    } 
+    else if (cduInput == "DELETE"){
+      setprop("autopilot/route-manager/input","@DELETE"~wpIndex);
+      return "";
     }
     else {
+      setprop("autopilot/route-manager/input","@INSERT"~wpIndex~":"~cduInput);
       return "";
     }
-  } 
-  else if (cduInput == "DELETE"){
-    cduLegsDeleteWP(index);
-    return "";
-  }
-  else {
-    cduLegsInsertWP(index, cduInput);
-    return "";
-  }
-}
-
-var cduSelectWaypoint = func(wpIndex, cduInput) {
-  if (wpIndex>0) {
-    var wpId = getprop("autopilot/route-manager/route/wp["~wpIndex~"]/id");
-    if (wpId != nil or wpId == cduInput) {
-      setprop("autopilot/route-manager/current-wp", wpIndex);
-      return "";
+  },
+  
+  setAltitude : func(wpIndex, altitude) {
+    
+    setprop("autopilot/route-manager/route/wp["~wpIndex~"]/altitude-ft",altitude);
+    if (substr(altitude,0,2) == "FL"){
+      setprop("autopilot/route-manager/route/wp["~wpIndex~"]/altitude-ft",substr(altitude,2)*100);
     }
+  },
+  
+  jumpToSelectedWaypoint : func(cduInput) {
+    var wps = me.getWaypoints();
+    if (me.selectedWpIndex>=0 and me.selectedWpIndex < size(wps)) {
+      var wpNode = wps[me.selectedWpIndex];
+      if (wpNode != nil) {
+        var ident = wpNode.getChild("id").getValue();
+        if (ident == cduInput) {
+          setprop("autopilot/route-manager/current-wp", me.selectedWpIndex);
+          return "";
+        }
+      }
+    }
+    return cduInput;
+  },
+  
+  render : func(output) {
+    output.title = (getprop("autopilot/route-manager/active") == 1)
+        ? "ACT RTE 1 LEGS"
+        : "RTE 1 LEGS";
+        
+    var activeWp = me.getActiveWP();
+    var waypoints = me.getWaypoints();
+    var waypointsLength = size(waypoints);
+    
+    if (me.page >= me.getPageCount()) {
+      me.page = 0;
+    }
+    
+    output.page = (me.page+1) ~ "/" ~ me.getPageCount();
+    
+    for (var line=0; line<5; line=line+1) {
+      var currentWpIndex = me.page * 5 + line;
+      
+      
+      if (currentWpIndex < waypointsLength) {
+        var currentWpNode = waypoints[currentWpIndex];
+        var ident = currentWpNode.getChild("id").getValue();
+        var alt = currentWpNode.getChild("altitude-ft").getValue();
+        var speedNode = currentWpNode.getChild("speed-kts");
+        
+        
+        output.left[line] = ident;
+        output.center[line] = (currentWpIndex == activeWp) ? "<-- ACTIVE" : "";
+        output.right[line] = ((speedNode==nil) ? "---" : sprintf("%3.0f", speedNode.getValue())) 
+            ~ "/"
+            ~ ((alt==nil or alt < 0) ? "-----" : int(alt));
+        
+        if (currentWpIndex>0) {
+          var bearing = waypoints[currentWpIndex-1].getChild("leg-bearing-true-deg").getValue();
+          var distance = waypoints[currentWpIndex-1].getChild("leg-distance-nm").getValue();
+          
+          output.leftTitle[line] = sprintf("%3.0f", bearing);
+          output.centerTitle[line] = sprintf("%3.0f", distance) ~ " NM";
+        }
+        
+      }
+    }
+    
+    output.left[5] = "<RTE 2 LEGS";
+		output.right[5] = (getprop("autopilot/route-manager/active") == 1)
+        ? "RTE DATA>"
+        : "ACTIVATE>";
+  },
+  
+  getActiveWP: func() {
+    return int(getprop("autopilot/route-manager/current-wp"));
+  },
+  getWaypoints: func() {
+    return props.globals.getNode("autopilot/route-manager/route").getChildren("wp");
+  },
+  getPageCount: func() {
+    var waypointsCnt = size(me.getWaypoints());
+    var pages = int(waypointsCnt / 5);
+    return (waypointsCnt > pages * 5) ? pages + 1 : pages;
   }
-  return cduInput;
-}
+};
 
 var cduHold = {
   active : 0,
@@ -261,6 +353,9 @@ var key = func(v) {
       if (cduDisplay == "HOLD") {
         cduInput = cduHold.lskPressed(v, cduInput);
       }
+      else if (cduDisplay == "RTE1_LEGS") {
+        cduInput = cduLegs.lskPressed(v, cduInput);
+      }
       else { # dispatch by key (old)  
         if (v == "LSK1L"){
           if (cduDisplay == "DEP_ARR_INDEX"){
@@ -283,9 +378,6 @@ var key = func(v) {
             setprop("autopilot/route-manager/departure/airport",cduInput);
             cduInput = "";
           }
-          if (cduDisplay == "RTE1_LEGS"){
-            cduInput = cduLegsLeftLSKPressed(1, cduInput);
-          }
           if (cduDisplay == "TO_REF"){
             setprop("instrumentation/fmc/to-flap",cduInput);
             cduInput = "";
@@ -304,10 +396,6 @@ var key = func(v) {
           }
           if (cduDisplay == "RTE1_1"){
             setprop("autopilot/route-manager/destination/airport",cduInput);
-            cduInput = "";
-          }
-          if (cduDisplay == "RTE1_LEGS"){
-            cduLegsSetAltWP(1, cduInput);
             cduInput = "";
           }
         }
@@ -333,9 +421,6 @@ var key = func(v) {
             setprop("autopilot/route-manager/departure/runway",cduInput);
             cduInput = "";;
           }
-          if (cduDisplay == "RTE1_LEGS"){
-            cduInput = cduLegsLeftLSKPressed(2, cduInput);
-          }
         }
         if (v == "LSK2R"){
           if (cduDisplay == "DEP_ARR_INDEX"){
@@ -354,52 +439,23 @@ var key = func(v) {
           else if (cduDisplay == "MENU"){
             eicasDisplay = "EICAS_MODES";
           }
-          else if (cduDisplay == "RTE1_LEGS"){
-            cduLegsSetAltWP(2, cduInput);
-            cduInput = "";
-          }
         }
         if (v == "LSK3L"){
           if (cduDisplay == "INIT_REF"){
             cduDisplay = "PERF_INIT";
-          }
-          if (cduDisplay == "RTE1_LEGS"){
-            cduInput = cduLegsLeftLSKPressed(3, cduInput);
-          }
-        }
-        if (v == "LSK3R"){
-          if (cduDisplay == "RTE1_LEGS"){
-            cduLegsSetAltWP(3, cduInput);
-            cduInput = "";
           }
         }
         if (v == "LSK4L"){
           if (cduDisplay == "INIT_REF"){
             cduDisplay = "THR_LIM";
           }
-          if (cduDisplay == "RTE1_LEGS"){
-            cduInput = cduLegsLeftLSKPressed(4, cduInput);
-          }
-        }
-        if (v == "LSK4R"){
-          if (cduDisplay == "RTE1_LEGS"){
-            cduLegsSetAltWP(4, cduInput);
-            cduInput = "";
-          }
         }
         if (v == "LSK5L"){
           if (cduDisplay == "INIT_REF"){
             cduDisplay = "TO_REF";
           }
-          if (cduDisplay == "RTE1_LEGS"){
-            cduInput = cduLegsLeftLSKPressed(5, cduInput);
-          }
         }
         if (v == "LSK5R"){
-          if (cduDisplay == "RTE1_LEGS"){
-            cduLegsSetAltWP(5, cduInput);
-            cduInput = "";
-          }
           if (cduDisplay == "NAV_RAD") {
             var nav0freq = getprop("instrumentation/nav[0]/frequencies/selected-mhz");
             var nav0rad = getprop("instrumentation/nav[0]/radials/selected-deg");
@@ -432,7 +488,7 @@ var key = func(v) {
           else if (cduDisplay == "APP_REF"){
             cduDisplay = "THR_LIM";
           }
-          else if ((cduDisplay == "RTE1_1") or (cduDisplay == "RTE1_LEGS")){
+          else if ((cduDisplay == "RTE1_1")){
             setprop("autopilot/route-manager/input","@ACTIVATE");
           }
           else if ((cduDisplay == "POS_INIT") or (cduDisplay == "DEP") or (cduDisplay == "RTE1_ARR") or (cduDisplay == "RTE1_DEP")){
@@ -451,11 +507,7 @@ var key = func(v) {
             cduDisplay = "MAINT";
           }
         }
-        if (v == "EXEC"){
-          if (cduDisplay == "RTE1_LEGS") {
-            cduInput = cduSelectWaypoint(cduWpSelected, cduInput);
-          }
-        }
+        
       }
 			
 			setprop("instrumentation/cdu/display",cduDisplay);
@@ -761,96 +813,7 @@ var cdu = func{
 			output.right[5] = "ROUTE>";
 		}
 		if (display == "RTE1_LEGS") {
-			if (getprop("autopilot/route-manager/active") == 1){
-				output.title = "ACT RTE 1 LEGS";
-				}
-			else {
-				output.title = "RTE 1 LEGS";
-				}
-        
-      var activeWp = int(getprop("autopilot/route-manager/current-wp"));
-      if (activeWp>0) {
-        if (activeWp - cduWpOffset == 1) output.center[0] = "<-- ACTIVE";
-        if (activeWp - cduWpOffset == 2) output.center[1] = "<-- ACTIVE";
-        if (activeWp - cduWpOffset == 3) output.center[2] = "<-- ACTIVE";
-        if (activeWp - cduWpOffset == 4) output.center[3] = "<-- ACTIVE";
-        if (activeWp - cduWpOffset == 5) output.center[4] = "<-- ACTIVE";
-      }
-      
-      var formatAltitude = func(lineIndex) {
-        var alt = getprop("autopilot/route-manager/route/wp["~(cduWpOffset+lineIndex)~"]/altitude-ft");
-        if (alt >= 0) {
-          return sprintf("%5.0f", alt);
-        } else {
-          return "-----";
-        }
-      };
-      
-			if (getprop("autopilot/route-manager/route/wp["~(cduWpOffset+1)~"]/id") != nil){
-				output.leftTitle[0] = sprintf("%3.0f", getprop("autopilot/route-manager/route/wp["~(cduWpOffset+1)~"]/leg-bearing-true-deg"));
-				output.left[0] = getprop("autopilot/route-manager/route/wp["~(cduWpOffset+1)~"]/id");
-				output.centerTitle[1] = sprintf("%3.0f", getprop("autopilot/route-manager/route/wp["~(cduWpOffset+1)~"]/leg-distance-nm"))~" NM";
-				output.right[0] = formatAltitude(1);
-				if (getprop("autopilot/route-manager/route/wp["~(cduWpOffset+1)~"]/speed-kts") != nil){
-					output.right[3] = getprop("autopilot/route-manager/route/wp["~(cduWpOffset+1)~"]/speed-kts")~"/"~sprintf("%5.0f", getprop("autopilot/route-manager/route/wp["~(cduWpOffset+1)~"]/altitude-ft"));
-					}
-				}
-			if (getprop("autopilot/route-manager/route/wp["~(cduWpOffset+2)~"]/id") != nil){
-				if (getprop("autopilot/route-manager/route/wp["~(cduWpOffset+2)~"]/leg-bearing-true-deg") != nil){
-					output.leftTitle[1] = sprintf("%3.0f", getprop("autopilot/route-manager/route/wp["~(cduWpOffset+2)~"]/leg-bearing-true-deg"));
-				}
-				output.left[1] = getprop("autopilot/route-manager/route/wp["~(cduWpOffset+2)~"]/id");
-				if (getprop("autopilot/route-manager/route/wp["~(cduWpOffset+2)~"]/leg-distance-nm") != nil){
-					output.centerTitle[2] = sprintf("%3.0f", getprop("autopilot/route-manager/route/wp["~(cduWpOffset+2)~"]/leg-distance-nm"))~" NM";
-				}
-				output.right[1] = formatAltitude(2);
-				if (getprop("autopilot/route-manager/route/wp["~(cduWpOffset+2)~"]/speed-kts") != nil){
-					output.right[3] = getprop("autopilot/route-manager/route/wp["~(cduWpOffset+2)~"]/speed-kts")~"/"~sprintf("%5.0f", getprop("autopilot/route-manager/route/wp["~(cduWpOffset+2)~"]/altitude-ft"));
-					}
-				}
-			if (getprop("autopilot/route-manager/route/wp["~(cduWpOffset+3)~"]/id") != nil){
-				if (getprop("autopilot/route-manager/route/wp["~(cduWpOffset+3)~"]/leg-bearing-true-deg") != nil){
-					output.leftTitle[2] = sprintf("%3.0f", getprop("autopilot/route-manager/route/wp["~(cduWpOffset+3)~"]/leg-bearing-true-deg"));
-				}
-				output.left[2] = getprop("autopilot/route-manager/route/wp["~(cduWpOffset+3)~"]/id");
-				if (getprop("autopilot/route-manager/route/wp["~(cduWpOffset+3)~"]/leg-distance-nm") != nil){
-					output.centerTitle[3] = sprintf("%3.0f", getprop("autopilot/route-manager/route/wp["~(cduWpOffset+3)~"]/leg-distance-nm"))~" NM";
-				}
-				output.right[2] = formatAltitude(3);
-				if (getprop("autopilot/route-manager/route/wp["~(cduWpOffset+3)~"]/speed-kts") != nil){
-					output.right[2] = getprop("autopilot/route-manager/route/wp["~(cduWpOffset+3)~"]/speed-kts")~"/"~sprintf("%5.0f", getprop("autopilot/route-manager/route/wp["~(cduWpOffset+3)~"]/altitude-ft"));;
-					}
-				}
-			if (getprop("autopilot/route-manager/route/wp["~(cduWpOffset+4)~"]/id") != nil){
-				if (getprop("autopilot/route-manager/route/wp["~(cduWpOffset+4)~"]/leg-bearing-true-deg") != nil){
-					output.leftTitle[3] = sprintf("%3.0f", getprop("autopilot/route-manager/route/wp["~(cduWpOffset+4)~"]/leg-bearing-true-deg"));
-				}
-				output.left[3] = getprop("autopilot/route-manager/route/wp["~(cduWpOffset+4)~"]/id");
-				if (getprop("autopilot/route-manager/route/wp["~(cduWpOffset+4)~"]/leg-distance-nm") != nil){
-					output.centerTitle[4] = sprintf("%3.0f", getprop("autopilot/route-manager/route/wp["~(cduWpOffset+4)~"]/leg-distance-nm"))~" NM";
-				}
-				output.right[3] = formatAltitude(4);
-				if (getprop("autopilot/route-manager/route/wp["~(cduWpOffset+4)~"]/speed-kts") != nil){
-					output.right[3] = getprop("autopilot/route-manager/route/wp["~(cduWpOffset+4)~"]/speed-kts")~"/"~sprintf("%5.0f", getprop("autopilot/route-manager/route/wp["~(cduWpOffset+4)~"]/altitude-ft"));
-					}
-				}
-			if (getprop("autopilot/route-manager/route/wp["~(cduWpOffset+5)~"]/id") != nil){
-				if (getprop("autopilot/route-manager/route/wp["~(cduWpOffset+5)~"]/leg-bearing-true-deg") != nil){
-					output.leftTitle[4] = sprintf("%3.0f", getprop("autopilot/route-manager/route/wp["~(cduWpOffset+5)~"]/leg-bearing-true-deg"));
-				}
-				output.left[4] = getprop("autopilot/route-manager/route/wp["~(cduWpOffset+5)~"]/id");
-				output.right[4] = formatAltitude(5);
-				if (getprop("autopilot/route-manager/route/wp["~(cduWpOffset+5)~"]/speed-kts") != nil){
-					output.right[3] = getprop("autopilot/route-manager/route/wp["~(cduWpOffset+5)~"]/speed-kts")~"/"~sprintf("%5.0f", getprop("autopilot/route-manager/route/wp["~(cduWpOffset+5)~"]/altitude-ft"));
-					}
-				}
-			output.left[5] = "<RTE 2 LEGS";
-			if (getprop("autopilot/route-manager/active") == 1){
-				output.right[5] = "RTE DATA>";
-				}
-			else{
-				output.right[5] = "ACTIVATE>";
-				}
+      cduLegs.render(output);
 		}
 		if (display == "THR_LIM") {
 			output.title = "THRUST LIM";

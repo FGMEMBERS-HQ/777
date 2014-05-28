@@ -1188,7 +1188,7 @@
 				</equals>
 			</condition>
 			<command>nasal</command>
-			<script>cdu.cduLegsScrollWP(-1);</script>
+			<script>cdu.cduLegs.scrollPage(-1);</script>
 		</binding>
 	</action>
 </animation>
@@ -1218,7 +1218,7 @@
 				</equals>
 			</condition>
 			<command>nasal</command>
-			<script>cdu.cduLegsScrollWP(1);</script>
+			<script>cdu.cduLegs.scrollPage(1);</script>
 		</binding>
 	</action>
 </animation>
