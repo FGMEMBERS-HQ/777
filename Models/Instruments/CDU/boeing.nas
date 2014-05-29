@@ -28,6 +28,110 @@ var _cduPageParent = {
   }
 };
 
+var cduDeparture = {
+  parents : [ _cduPageParent ],
+  airport : nil,
+  selectedRunway : nil,
+  selectedSid : nil,
+  selectedTrans : nil,
+  
+  render : func(output) {
+    me.initialize();
+    output.title = (me.airport != nil) ? me.airport.id ~ " DEPARTURES" : "DEPARTURES";
+		output.leftTitle[0] = me.hasSelectedSid() ? "SID" : "SIDS";
+    output.rightTitle[0] = me.hasSelectedRunway() ? "RWY" : "RUNWAYS";
+		
+    if (me.hasSelectedSid()) {
+      output.left[0] = me.selectedSid;
+      output.leftTitle[1] = "TRANS";
+      if (me.hasSelectedTrans()) {
+        output.left[1] = me.selectedTrans;
+      }
+      else {
+        var transitions = me.getTransitions();
+        var line = 1;
+        for (var i=0; i<size(transitions) and line<5; i=i+1) {
+          output.left[line] = transitions[i];
+          line = line + 1;
+        }
+      }
+    } else {
+      var sids = me.getSids();
+      var line = 0;
+      for (var i=0; i<size(sids) and line <5; i=i+1) {
+        output.left[line] = sids[i];
+        line = line + 1;
+      }
+    }
+    
+    if (me.hasSelectedRunway()) {
+      output.right[0] = me.selectedRunway;
+    } 
+    else {
+      var rwys = me.getRunways();
+      var line = 0;
+      for (var i=0; i<size(rwys) and line<5; i=i+1) {
+        output.right[line] = rwys[i];
+        line = line + 1;
+      }
+    }
+		
+    if ( me.selectedRunway != nil or me.selectedSid != nil ) {
+      output.left[5] = "<ERASE";
+    }
+		output.right[5] = "ROUTE>";
+  },
+  
+  initialize : func() {
+    me.airport = flightplan().departure;
+    me.selectedRunway = getprop("autopilot/route-manager/departure/runway");
+    me.selectedSid = getprop("autopilot/route-manager/departure/sid");
+  },
+  
+  hasSelectedRunway : func() { return me.selectedRunway != nil and me.selectedRunway != ""; },
+  hasSelectedSid : func() { return me.selectedSid != nil and me.selectedSid != ""; },
+  hasSelectedTrans : func() { return me.selectedTrans != nil and me.selectedTrans != ""; },
+  
+  getRunways : func() {
+    var rwys = [];
+    if ( me.airport != nil ) {
+        foreach(var rwy; keys(me.airport.runways)) {
+          append(rwys, rwy);
+        }
+    }
+    return rwys;
+  },
+  
+  getSids : func() {
+    var sids = [];
+    if ( me.airport != nil and me.hasSelectedRunway() ) {
+      var apt = me.airport;
+      var rwy = flightplan().departure_runway;
+      if (size(apt.sids(rwy)) == 0) {
+        append(sids, "DEFAULT");
+      }
+      else {
+        foreach (var s; apt.sids(rwy)) {
+          append(sids, s);
+        }
+      }  
+    }
+    return sids;
+  },
+  
+  getTransitions : func() {
+    var trans = [];
+    
+    if (me.airport != nil and me.hasSelectedSid() != nil) {
+      var sid = me.airport.getSid(me.selectedSid);
+      if (sid != nil) {
+       trans = sid.transitions;
+      }
+    }
+    return trans;
+  }
+};
+
 var cduLegs = {
   parents: [ _cduPageParent ],
   page: 0,
@@ -797,20 +901,7 @@ var cdu = func{
 			output.right[5] = "ROUTE>";
 		}
 		if (display == "RTE1_DEP") {
-			if (getprop("autopilot/route-manager/departure/airport") != nil){
-				output.title = getprop("autopilot/route-manager/departure/airport")~" DEPARTURES";
-			}
-			else{
-				output.title = "DEPARTURES";
-			}
-			output.leftTitle[0] = "SIDS";
-			output.rightTitle[0] = "RUNWAYS";
-			if (getprop("autopilot/route-manager/departure/runway") != nil){
-				output.right[0] = getprop("autopilot/route-manager/departure/runway");
-			}
-			output.leftTitle[1] = "TRANS";
-			output.left[5] = "<ERASE";
-			output.right[5] = "ROUTE>";
+			cduDeparture.render(output);
 		}
 		if (display == "RTE1_LEGS") {
       cduLegs.render(output);
