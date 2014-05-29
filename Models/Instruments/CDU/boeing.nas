@@ -493,6 +493,16 @@ var cduHold = {
   
 };
 
+# ==========
+# CDU Pages
+
+var cduPages = {
+  "HOLD"  : cduHold,
+  "RTE1_LEGS" : cduLegs,
+  "RTE1_DEP" : cduDeparture
+};
+
+
 var key = func(v) {
 		var cduDisplay = getprop("instrumentation/cdu/display");
 		var serviceable = getprop("instrumentation/cdu/serviceable");
@@ -501,15 +511,11 @@ var key = func(v) {
 		
 		if (serviceable == 1){
       # dispatch by page (new)
-      if (cduDisplay == "HOLD") {
-        cduInput = cduHold.lskPressed(v, cduInput);
+      if (contains(cduPages, cduDisplay)) {
+        var page = cduPages[cduDisplay];
+        cduInput = page.lskPressed(v, cduInput);
       }
-      else if (cduDisplay == "RTE1_LEGS") {
-        cduInput = cduLegs.lskPressed(v, cduInput);
-      }
-      else if (cduDisplay == "RTE1_DEP") {
-        cduInput = cduDeparture.lskPressed(v, cduInput);
-      }
+      
       else { # dispatch by key (old)  
         if (v == "LSK1L"){
           if (cduDisplay == "DEP_ARR_INDEX"){
@@ -711,295 +717,293 @@ var cdu = func{
     };
 		output.right[0] = "";	output.right[1] = "";	output.right[2] = "";	output.right[3] = "";	output.right[4] = "";	output.right[5] = "";
 		
-		if (display == "MENU") {
-			output.title = "MENU";
-			output.left[0] = "<FMC";
-			output.rightTitle[0] = "EFIS CP";
-			output.right[0] = "SELECT>";
-			output.left[1] = "<ACARS";
-			output.rightTitle[1] = "EICAS CP";
-			output.right[1] = "SELECT>";
-			output.left[5] = "<ACMS";
-			output.right[5] = "CMC>";
-		}
-		if (display == "ALTN_NAV_RAD") {
-			output.title = "ALTN NAV RADIO";
-		}
-		if (display == "APP_REF") {
-			output.title = "APPROACH REF";
-			output.leftTitle[0] = "GROSS WT";
-			output.rightTitle[0] = "FLAPS    VREF";
-			if (getprop("instrumentation/fmc/vspeeds/Vref") != nil){
-				output.left[0] = getprop("instrumentation/fmc/vspeeds/Vref");
-			}
-			if (getprop("autopilot/route-manager/destination/airport") != nil){
-				output.leftTitle[3] = getprop("autopilot/route-manager/destination/airport");
-			}
-			output.left[5] = "<INDEX";
-			output.right[5] = "THRUST LIM>";
-		}
-		if (display == "DEP_ARR_INDEX") {
-			output.title = "DEP/ARR INDEX";
-			output.left[0] = "<DEP";
-			output.centerTitle[0] = "RTE 1";
-			if (getprop("autopilot/route-manager/departure/airport") != nil){
-				output.center[0] = getprop("autopilot/route-manager/departure/airport");
-			}
-			output.right[0] = "ARR>";
-			if (getprop("autopilot/route-manager/destination/airport") != nil){
-				output.center[1] = getprop("autopilot/route-manager/destination/airport");
-			}
-			output.right[1] = "ARR>";
-			output.left[2] = "<DEP";
-			output.right[2] = "ARR>";
-			output.right[3] = "ARR>";
-			output.leftTitle[5] ="DEP";
-			output.left[5] = "<----";
-			output.center[5] = "OTHER";
-			output.rightTitle[5] ="ARR";
-			output.right[5] = "---->";
-		}
-		if (display == "EICAS_MODES") {
-			output.title = "EICAS MODES";
-			output.left[0] = "<ENG";
-			output.right[0] = "FUEL>";
-			output.left[1] = "<STAT";
-			output.right[1] = "GEAR>";
-			output.left[4] = "<CANC";
-			output.right[4] = "RCL>";
-			output.right[5] = "SYNOPTICS>";
-		}
-		if (display == "EICAS_SYN") {
-			output.title = "EICAS SYNOPTICS";
-			output.left[0] = "<ELEC";
-			output.right[0] = "HYD>";
-			output.left[1] = "<ECS";
-			output.right[1] = "DOORS>";
-			output.left[4] = "<CANC";
-			output.right[4] = "RCL>";
-			output.right[5] = "MODES>";
-		}
-		if (display == "FIX_INFO") {
-			output.title = "FIX INFO";
-			output.left[0] = sprintf("%3.2f", getprop("instrumentation/nav[0]/frequencies/selected-mhz-fmt"));
-			output.right[0] = sprintf("%3.2f", getprop("instrumentation/nav[1]/frequencies/selected-mhz-fmt"));
-			output.left[1] = sprintf("%3.2f", getprop("instrumentation/nav[0]/radials/selected-deg"));
-			output.right[1] = sprintf("%3.2f", getprop("instrumentation/nav[1]/radials/selected-deg"));
-			output.left[5] = "<ERASE FIX";
-		}
-		if (display == "IDENT") {
-			output.title = "IDENT";
-			output.leftTitle[0] = "MODEL";
-			if (getprop("instrumentation/cdu/ident/model") != nil){
-				output.left[0] = getprop("instrumentation/cdu/ident/model");
-			}
-			output.rightTitle[0] = "ENGINES";
-			output.leftTitle[1] = "NAV DATA";
-			if (getprop("instrumentation/cdu/ident/engines") != nil){
-				output.right[0] = getprop("instrumentation/cdu/ident/engines");
-			}
-			output.left[5] = "<INDEX";
-			output.right[5] = "POS INIT>";
-		}
-		if (display == "INIT_REF") {
-			output.title = "INIT/REF INDEX";
-			output.left[0] = "<IDENT";
-			output.right[0] = "NAV DATA>";
-			output.left[1] = "<POS";
-			output.left[2] = "<PERF";
-			output.left[3] = "<THRUST LIM";
-			output.left[4] = "<TAKEOFF";
-			output.left[5] = "<APPROACH";
-			output.right[5] = "MAINT>";
-		}
-		if (display == "MAINT") {
-			output.title = "MAINTENANCE INDEX";
-			output.left[0] = "<CROS LOAD";
-			output.right[0] = "BITE>";
-			output.left[1] = "<PERF FACTORS";
-			output.left[2] = "<IRS MONITOR";
-			output.left[5] = "<INDEX";
-		}
-		if (display == "NAV_RAD") {
-			output.title = "NAV RADIO";
-			output.leftTitle[0] = "VOR L";
-			output.left[0] = sprintf("%3.2f", getprop("instrumentation/nav[0]/frequencies/selected-mhz-fmt"));
-			output.rightTitle[0] = "VOR R";
-			output.right[0] = sprintf("%3.2f", getprop("instrumentation/nav[1]/frequencies/selected-mhz-fmt"));
-			output.leftTitle[1] = "CRS";
-			output.centerTitle[1] = "RADIAL";
-			output.center[1] = sprintf("%3.2f", getprop("instrumentation/nav[0]/radials/selected-deg"))~"   "~sprintf("%3.2f", getprop("instrumentation/nav[1]/radials/selected-deg"));
-			output.rightTitle[1] = "CRS";
-			output.leftTitle[2] = "ADF L";
-			output.left[2] = sprintf("%3.2f", getprop("instrumentation/adf[0]/frequencies/selected-khz"));
-			output.rightTitle[2] = "ADF R";
-			output.right[2] = sprintf("%3.2f", getprop("instrumentation/adf[1]/frequencies/selected-khz"));
-      output.right[4] = "SWITCH>";
-		}
-		if (display == "PERF_INIT") {
-			output.title = "PERF INIT";
-			output.leftTitle[0] = "GR WT";
-			output.rightTitle[0] = "CRZ ALT";
-			output.right[0] = getprop("autopilot/route-manager/cruise/altitude-ft");
-			output.leftTitle[1] = "FUEL";
-			output.leftTitle[2] = "ZFW";
-			output.leftTitle[3] = "RESERVES";
-			output.rightTitle[3] = "CRZ CG";
-			output.leftTitle[4] = "COST INDEX";
-			output.rightTitle[4] = "STEP SIZE";
-			output.left[5] = "<INDEX";
-			output.right[5] = "THRUST LIM>";	
-			if (getprop("sim/flight-model") == "jsb") {
-				output.left[0] = sprintf("%3.1f", (getprop("fdm/jsbsim/inertia/weight-lbs")/1000));
-				output.left[1] = sprintf("%3.1f", (getprop("fdm/jsbsim/propulsion/total-fuel-lbs")/1000));
-				output.left[2] = sprintf("%3.1f", (getprop("fdm/jsbsim/inertia/empty-weight-lbs")/1000));
-			}
-			elsif (getprop("sim/flight-model") == "yasim") {
-				output.left[0] = sprintf("%3.1f", (getprop("yasim/gross-weight-lbs")/1000));
-				output.left[1] = sprintf("%3.1f", (getprop("consumables/fuel/total-fuel-lbs")/1000));
+    if (contains(cduPages, display)) {
+      var page = cduPages[display];
+      page.render(output);
+    }
+    else {
+      
+      if (display == "MENU") {
+        output.title = "MENU";
+        output.left[0] = "<FMC";
+        output.rightTitle[0] = "EFIS CP";
+        output.right[0] = "SELECT>";
+        output.left[1] = "<ACARS";
+        output.rightTitle[1] = "EICAS CP";
+        output.right[1] = "SELECT>";
+        output.left[5] = "<ACMS";
+        output.right[5] = "CMC>";
+      }
+      if (display == "ALTN_NAV_RAD") {
+        output.title = "ALTN NAV RADIO";
+      }
+      if (display == "APP_REF") {
+        output.title = "APPROACH REF";
+        output.leftTitle[0] = "GROSS WT";
+        output.rightTitle[0] = "FLAPS    VREF";
+        if (getprop("instrumentation/fmc/vspeeds/Vref") != nil){
+          output.left[0] = getprop("instrumentation/fmc/vspeeds/Vref");
+        }
+        if (getprop("autopilot/route-manager/destination/airport") != nil){
+          output.leftTitle[3] = getprop("autopilot/route-manager/destination/airport");
+        }
+        output.left[5] = "<INDEX";
+        output.right[5] = "THRUST LIM>";
+      }
+      if (display == "DEP_ARR_INDEX") {
+        output.title = "DEP/ARR INDEX";
+        output.left[0] = "<DEP";
+        output.centerTitle[0] = "RTE 1";
+        if (getprop("autopilot/route-manager/departure/airport") != nil){
+          output.center[0] = getprop("autopilot/route-manager/departure/airport");
+        }
+        output.right[0] = "ARR>";
+        if (getprop("autopilot/route-manager/destination/airport") != nil){
+          output.center[1] = getprop("autopilot/route-manager/destination/airport");
+        }
+        output.right[1] = "ARR>";
+        output.left[2] = "<DEP";
+        output.right[2] = "ARR>";
+        output.right[3] = "ARR>";
+        output.leftTitle[5] ="DEP";
+        output.left[5] = "<----";
+        output.center[5] = "OTHER";
+        output.rightTitle[5] ="ARR";
+        output.right[5] = "---->";
+      }
+      if (display == "EICAS_MODES") {
+        output.title = "EICAS MODES";
+        output.left[0] = "<ENG";
+        output.right[0] = "FUEL>";
+        output.left[1] = "<STAT";
+        output.right[1] = "GEAR>";
+        output.left[4] = "<CANC";
+        output.right[4] = "RCL>";
+        output.right[5] = "SYNOPTICS>";
+      }
+      if (display == "EICAS_SYN") {
+        output.title = "EICAS SYNOPTICS";
+        output.left[0] = "<ELEC";
+        output.right[0] = "HYD>";
+        output.left[1] = "<ECS";
+        output.right[1] = "DOORS>";
+        output.left[4] = "<CANC";
+        output.right[4] = "RCL>";
+        output.right[5] = "MODES>";
+      }
+      if (display == "FIX_INFO") {
+        output.title = "FIX INFO";
+        output.left[0] = sprintf("%3.2f", getprop("instrumentation/nav[0]/frequencies/selected-mhz-fmt"));
+        output.right[0] = sprintf("%3.2f", getprop("instrumentation/nav[1]/frequencies/selected-mhz-fmt"));
+        output.left[1] = sprintf("%3.2f", getprop("instrumentation/nav[0]/radials/selected-deg"));
+        output.right[1] = sprintf("%3.2f", getprop("instrumentation/nav[1]/radials/selected-deg"));
+        output.left[5] = "<ERASE FIX";
+      }
+      if (display == "IDENT") {
+        output.title = "IDENT";
+        output.leftTitle[0] = "MODEL";
+        if (getprop("instrumentation/cdu/ident/model") != nil){
+          output.left[0] = getprop("instrumentation/cdu/ident/model");
+        }
+        output.rightTitle[0] = "ENGINES";
+        output.leftTitle[1] = "NAV DATA";
+        if (getprop("instrumentation/cdu/ident/engines") != nil){
+          output.right[0] = getprop("instrumentation/cdu/ident/engines");
+        }
+        output.left[5] = "<INDEX";
+        output.right[5] = "POS INIT>";
+      }
+      if (display == "INIT_REF") {
+        output.title = "INIT/REF INDEX";
+        output.left[0] = "<IDENT";
+        output.right[0] = "NAV DATA>";
+        output.left[1] = "<POS";
+        output.left[2] = "<PERF";
+        output.left[3] = "<THRUST LIM";
+        output.left[4] = "<TAKEOFF";
+        output.left[5] = "<APPROACH";
+        output.right[5] = "MAINT>";
+      }
+      if (display == "MAINT") {
+        output.title = "MAINTENANCE INDEX";
+        output.left[0] = "<CROS LOAD";
+        output.right[0] = "BITE>";
+        output.left[1] = "<PERF FACTORS";
+        output.left[2] = "<IRS MONITOR";
+        output.left[5] = "<INDEX";
+      }
+      if (display == "NAV_RAD") {
+        output.title = "NAV RADIO";
+        output.leftTitle[0] = "VOR L";
+        output.left[0] = sprintf("%3.2f", getprop("instrumentation/nav[0]/frequencies/selected-mhz-fmt"));
+        output.rightTitle[0] = "VOR R";
+        output.right[0] = sprintf("%3.2f", getprop("instrumentation/nav[1]/frequencies/selected-mhz-fmt"));
+        output.leftTitle[1] = "CRS";
+        output.centerTitle[1] = "RADIAL";
+        output.center[1] = sprintf("%3.2f", getprop("instrumentation/nav[0]/radials/selected-deg"))~"   "~sprintf("%3.2f", getprop("instrumentation/nav[1]/radials/selected-deg"));
+        output.rightTitle[1] = "CRS";
+        output.leftTitle[2] = "ADF L";
+        output.left[2] = sprintf("%3.2f", getprop("instrumentation/adf[0]/frequencies/selected-khz"));
+        output.rightTitle[2] = "ADF R";
+        output.right[2] = sprintf("%3.2f", getprop("instrumentation/adf[1]/frequencies/selected-khz"));
+        output.right[4] = "SWITCH>";
+      }
+      if (display == "PERF_INIT") {
+        output.title = "PERF INIT";
+        output.leftTitle[0] = "GR WT";
+        output.rightTitle[0] = "CRZ ALT";
+        output.right[0] = getprop("autopilot/route-manager/cruise/altitude-ft");
+        output.leftTitle[1] = "FUEL";
+        output.leftTitle[2] = "ZFW";
+        output.leftTitle[3] = "RESERVES";
+        output.rightTitle[3] = "CRZ CG";
+        output.leftTitle[4] = "COST INDEX";
+        output.rightTitle[4] = "STEP SIZE";
+        output.left[5] = "<INDEX";
+        output.right[5] = "THRUST LIM>";	
+        if (getprop("sim/flight-model") == "jsb") {
+          output.left[0] = sprintf("%3.1f", (getprop("fdm/jsbsim/inertia/weight-lbs")/1000));
+          output.left[1] = sprintf("%3.1f", (getprop("fdm/jsbsim/propulsion/total-fuel-lbs")/1000));
+          output.left[2] = sprintf("%3.1f", (getprop("fdm/jsbsim/inertia/empty-weight-lbs")/1000));
+        }
+        elsif (getprop("sim/flight-model") == "yasim") {
+          output.left[0] = sprintf("%3.1f", (getprop("yasim/gross-weight-lbs")/1000));
+          output.left[1] = sprintf("%3.1f", (getprop("consumables/fuel/total-fuel-lbs")/1000));
 
-				yasim_emptyweight = getprop("yasim/gross-weight-lbs");
-				yasim_emptyweight -= getprop("consumables/fuel/total-fuel-lbs");
-				yasim_weights = props.globals.getNode("sim").getChildren("weight");
-				for (i = 0; i < size(yasim_weights); i += 1) {
-					yasim_emptyweight -= yasim_weights[i].getChild("weight-lb").getValue();
-				}
+          yasim_emptyweight = getprop("yasim/gross-weight-lbs");
+          yasim_emptyweight -= getprop("consumables/fuel/total-fuel-lbs");
+          yasim_weights = props.globals.getNode("sim").getChildren("weight");
+          for (i = 0; i < size(yasim_weights); i += 1) {
+            yasim_emptyweight -= yasim_weights[i].getChild("weight-lb").getValue();
+          }
 
-				output.left[2] = sprintf("%3.1f", yasim_emptyweight/1000);
-			}
-		}
-		if (display == "POS_INIT") {
-			output.title = "POS INIT";
-			output.left[5] = "<INDEX";
-			output.right[5] = "ROUTE>";
-		}
-		if (display == "POS_REF") {
-			output.title = "POS REF";
-			output.leftTitle[0] = "FMC POST";
-			output.left[0] = getprop("position/latitude-string")~" "~getprop("position/longitude-string");
-			output.rightTitle[0] = "GS";
-			output.right[0] = sprintf("%3.0f", getprop("velocities/groundspeed-kt"));
-			output.left[4] = "<PURGE";
-			output.right[4] = "INHIBIT>";
-			output.left[5] = "<INDEX";
-			output.right[5] = "BRG/DIST>";
-		}
-		if (display == "RTE1_1") {
-			output.title = "RTE 1";
-			output.page = "1/2";
-			output.leftTitle[0] = "ORIGIN";
-			if (getprop("autopilot/route-manager/departure/airport") != nil){
-				output.left[0] = getprop("autopilot/route-manager/departure/airport");
-			}
-			output.rightTitle[0] = "DEST";
-			if (getprop("autopilot/route-manager/destination/airport") != nil){
-				output.right[0] = getprop("autopilot/route-manager/destination/airport");
-			}
-			output.leftTitle[1] = "RUNWAY";
-			if (getprop("autopilot/route-manager/departure/runway") != nil){
-				output.left[1] = getprop("autopilot/route-manager/departure/runway");
-			}
-			output.rightTitle[1] = "FLT NO";
-			output.rightTitle[2] = "CO ROUTE";
-			output.left[4] = "<RTE COPY";
-			output.left[5] = "<RTE 2";
-			if (getprop("autopilot/route-manager/active") == 1){
-				output.right[5] = "PERF INIT>";
-				}
-			else {
-				output.right[5] = "ACTIVATE>";
-				}
-		}
-		if (display == "RTE1_2") {
-			output.title = "RTE 1";
-			output.page = "2/2";
-			output.leftTitle[0] = "VIA";
-			output.rightTitle[0] = "TO";
-			if (getprop("autopilot/route-manager/route/wp[1]/id") != nil){
-				output.right[0] = getprop("autopilot/route-manager/route/wp[1]/id");
-				}
-			if (getprop("autopilot/route-manager/route/wp[2]/id") != nil){
-				output.right[1] = getprop("autopilot/route-manager/route/wp[2]/id");
-				}
-			if (getprop("autopilot/route-manager/route/wp[3]/id") != nil){
-				output.right[2] = getprop("autopilot/route-manager/route/wp[3]/id");
-				}
-			if (getprop("autopilot/route-manager/route/wp[4]/id") != nil){
-				output.right[3] = getprop("autopilot/route-manager/route/wp[4]/id");
-				}
-			if (getprop("autopilot/route-manager/route/wp[5]/id") != nil){
-				output.right[4] = getprop("autopilot/route-manager/route/wp[5]/id");
-				}
-			output.left[5] = "<RTE 2";
-			output.right[5] = "ACTIVATE>";
-		}
-		if (display == "RTE1_ARR") {
-			if (getprop("autopilot/route-manager/destination/airport") != nil){
-				output.title = getprop("autopilot/route-manager/destination/airport")~" ARRIVALS";
-			}
-			else{
-				output.title = "ARRIVALS";
-			}
-			output.leftTitle[0] = "STARS";
-			output.rightTitle[0] = "APPROACHES";
-			if (getprop("autopilot/route-manager/destination/runway") != nil){
-				output.right[0] = getprop("autopilot/route-manager/destination/runway");
-			}
-			output.leftTitle[1] = "TRANS";
-			output.rightTitle[2] = "RUNWAYS";
-			output.left[5] = "<INDEX";
-			output.right[5] = "ROUTE>";
-		}
-		if (display == "RTE1_DEP") {
-			cduDeparture.render(output);
-		}
-		if (display == "RTE1_LEGS") {
-      cduLegs.render(output);
-		}
-		if (display == "THR_LIM") {
-			output.title = "THRUST LIM";
-			output.leftTitle[0] = "SEL";
-			output.centerTitle[0] = "OAT";
-			output.center[0] = sprintf("%2.0f", getprop("environment/temperature-degc"))~" °C";
-			output.rightTitle[0] = "TO 1 N1";
-			output.left[1] = "<TO";
-			output.right[1] = "CLB>";
-			output.leftTitle[2] = "TO 1";
-			output.left[2] = "<-10%";
-			output.center[2] = "<SEL> <ARM>";
-			output.right[2] = "CLB 1>";
-			output.leftTitle[3] = "TO 2";
-			output.left[3] = "<-20%";
-			output.right[3] = "CLB 2>";
-			output.left[5] = "<INDEX";
-			output.right[5] = "TAKEOFF>";
-		}
-		if (display == "TO_REF") {
-			output.title = "TAKEOFF REF";
-			output.leftTitle[0] = "FLAP/ACCEL HT";
-			output.left[0] = sprintf("%2.0f", getprop("instrumentation/fmc/to-flap"));
-			output.rightTitle[0] = "REF V1";
-			if (getprop("instrumentation/fmc/vspeeds/V1") != nil){
-				output.right[0] = sprintf("%3.0f", getprop("instrumentation/fmc/vspeeds/V1"));
-			}
-			output.leftTitle[1] = "E/O ACCEL HT";
-			output.rightTitle[1] = "REF VR";
-			if (getprop("instrumentation/fmc/vspeeds/VR") != nil){
-				output.right[1] = sprintf("%3.0f", getprop("instrumentation/fmc/vspeeds/VR"));
-			}
-			output.leftTitle[2] = "THR REDUCTION";
-			output.rightTitle[2] = "REF V2";
-			if (getprop("instrumentation/fmc/vspeeds/V2") != nil){
-				output.right[2] = sprintf("%3.0f", getprop("instrumentation/fmc/vspeeds/V2"));
-			}
-			output.leftTitle[3] = "WIND/SLOPE";
-			output.rightTitle[3] = "TRIM   CG";
-			output.rightTitle[4] = "POS SHIFT";
-			output.left[5] = "<INDEX";
-			output.right[5] = "POS INIT>";
-		}
-    if (display == "HOLD") {
-      cduHold.render(output);
+          output.left[2] = sprintf("%3.1f", yasim_emptyweight/1000);
+        }
+      }
+      if (display == "POS_INIT") {
+        output.title = "POS INIT";
+        output.left[5] = "<INDEX";
+        output.right[5] = "ROUTE>";
+      }
+      if (display == "POS_REF") {
+        output.title = "POS REF";
+        output.leftTitle[0] = "FMC POST";
+        output.left[0] = getprop("position/latitude-string")~" "~getprop("position/longitude-string");
+        output.rightTitle[0] = "GS";
+        output.right[0] = sprintf("%3.0f", getprop("velocities/groundspeed-kt"));
+        output.left[4] = "<PURGE";
+        output.right[4] = "INHIBIT>";
+        output.left[5] = "<INDEX";
+        output.right[5] = "BRG/DIST>";
+      }
+      if (display == "RTE1_1") {
+        output.title = "RTE 1";
+        output.page = "1/2";
+        output.leftTitle[0] = "ORIGIN";
+        if (getprop("autopilot/route-manager/departure/airport") != nil){
+          output.left[0] = getprop("autopilot/route-manager/departure/airport");
+        }
+        output.rightTitle[0] = "DEST";
+        if (getprop("autopilot/route-manager/destination/airport") != nil){
+          output.right[0] = getprop("autopilot/route-manager/destination/airport");
+        }
+        output.leftTitle[1] = "RUNWAY";
+        if (getprop("autopilot/route-manager/departure/runway") != nil){
+          output.left[1] = getprop("autopilot/route-manager/departure/runway");
+        }
+        output.rightTitle[1] = "FLT NO";
+        output.rightTitle[2] = "CO ROUTE";
+        output.left[4] = "<RTE COPY";
+        output.left[5] = "<RTE 2";
+        if (getprop("autopilot/route-manager/active") == 1){
+          output.right[5] = "PERF INIT>";
+          }
+        else {
+          output.right[5] = "ACTIVATE>";
+          }
+      }
+      if (display == "RTE1_2") {
+        output.title = "RTE 1";
+        output.page = "2/2";
+        output.leftTitle[0] = "VIA";
+        output.rightTitle[0] = "TO";
+        if (getprop("autopilot/route-manager/route/wp[1]/id") != nil){
+          output.right[0] = getprop("autopilot/route-manager/route/wp[1]/id");
+          }
+        if (getprop("autopilot/route-manager/route/wp[2]/id") != nil){
+          output.right[1] = getprop("autopilot/route-manager/route/wp[2]/id");
+          }
+        if (getprop("autopilot/route-manager/route/wp[3]/id") != nil){
+          output.right[2] = getprop("autopilot/route-manager/route/wp[3]/id");
+          }
+        if (getprop("autopilot/route-manager/route/wp[4]/id") != nil){
+          output.right[3] = getprop("autopilot/route-manager/route/wp[4]/id");
+          }
+        if (getprop("autopilot/route-manager/route/wp[5]/id") != nil){
+          output.right[4] = getprop("autopilot/route-manager/route/wp[5]/id");
+          }
+        output.left[5] = "<RTE 2";
+        output.right[5] = "ACTIVATE>";
+      }
+      if (display == "RTE1_ARR") {
+        if (getprop("autopilot/route-manager/destination/airport") != nil){
+          output.title = getprop("autopilot/route-manager/destination/airport")~" ARRIVALS";
+        }
+        else{
+          output.title = "ARRIVALS";
+        }
+        output.leftTitle[0] = "STARS";
+        output.rightTitle[0] = "APPROACHES";
+        if (getprop("autopilot/route-manager/destination/runway") != nil){
+          output.right[0] = getprop("autopilot/route-manager/destination/runway");
+        }
+        output.leftTitle[1] = "TRANS";
+        output.rightTitle[2] = "RUNWAYS";
+        output.left[5] = "<INDEX";
+        output.right[5] = "ROUTE>";
+      }
+      if (display == "THR_LIM") {
+        output.title = "THRUST LIM";
+        output.leftTitle[0] = "SEL";
+        output.centerTitle[0] = "OAT";
+        output.center[0] = sprintf("%2.0f", getprop("environment/temperature-degc"))~" °C";
+        output.rightTitle[0] = "TO 1 N1";
+        output.left[1] = "<TO";
+        output.right[1] = "CLB>";
+        output.leftTitle[2] = "TO 1";
+        output.left[2] = "<-10%";
+        output.center[2] = "<SEL> <ARM>";
+        output.right[2] = "CLB 1>";
+        output.leftTitle[3] = "TO 2";
+        output.left[3] = "<-20%";
+        output.right[3] = "CLB 2>";
+        output.left[5] = "<INDEX";
+        output.right[5] = "TAKEOFF>";
+      }
+      if (display == "TO_REF") {
+        output.title = "TAKEOFF REF";
+        output.leftTitle[0] = "FLAP/ACCEL HT";
+        output.left[0] = sprintf("%2.0f", getprop("instrumentation/fmc/to-flap"));
+        output.rightTitle[0] = "REF V1";
+        if (getprop("instrumentation/fmc/vspeeds/V1") != nil){
+          output.right[0] = sprintf("%3.0f", getprop("instrumentation/fmc/vspeeds/V1"));
+        }
+        output.leftTitle[1] = "E/O ACCEL HT";
+        output.rightTitle[1] = "REF VR";
+        if (getprop("instrumentation/fmc/vspeeds/VR") != nil){
+          output.right[1] = sprintf("%3.0f", getprop("instrumentation/fmc/vspeeds/VR"));
+        }
+        output.leftTitle[2] = "THR REDUCTION";
+        output.rightTitle[2] = "REF V2";
+        if (getprop("instrumentation/fmc/vspeeds/V2") != nil){
+          output.right[2] = sprintf("%3.0f", getprop("instrumentation/fmc/vspeeds/V2"));
+        }
+        output.leftTitle[3] = "WIND/SLOPE";
+        output.rightTitle[3] = "TRIM   CG";
+        output.rightTitle[4] = "POS SHIFT";
+        output.left[5] = "<INDEX";
+        output.right[5] = "POS INIT>";
+      }
     }
 		
 		if (serviceable != 1){
