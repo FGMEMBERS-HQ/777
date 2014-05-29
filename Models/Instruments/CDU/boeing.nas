@@ -35,6 +35,51 @@ var cduDeparture = {
   selectedSid : nil,
   selectedTrans : nil,
   
+  lskPressed : func(key, cduInput) {
+    var line = me.getLSKLine(key); 
+    if (me.isLSKRight(key)) {
+      if (line >=0 and line <5 and !me.hasSelectedRunway()) {
+        me.selectRunway(line);
+        return "";
+      }
+    }
+    else if (me.isLSKLeft(key)) {
+      if (line>=0 and line<5 and !me.hasSelectedSid()) {
+        me.selectSid(line);
+      }
+      if (line==5 and me.hasSelectedRunway()) {
+        # Erase
+        me.selectedRunway = "";
+        me.selectedSid = "";
+        me.selectedTrans = "";
+        me.storeDepartureInfo();
+      }
+    }
+    return cduInput;
+  },
+  
+  selectRunway : func(line) {
+    var rwys = me.getRunways();
+    if (line < size(rwys)) {
+      me.selectedRunway = rwys[line];
+      me.storeDepartureInfo();
+    }
+  },
+  
+  selectSid : func(line) {
+    var sids = me.getSids();
+    if (line < size(sids)) {
+      me.selectedSid = sids[line];
+      me.storeDepartureInfo();
+    }
+  },
+  
+  storeDepartureInfo : func() {
+    setprop("autopilot/route-manager/departure/runway", me.selectedRunway);
+    setprop("autopilot/route-manager/departure/sid", me.selectedSid);
+    print("Rwy: ", me.selectedRunway, ", SID: ", me.selectedSid);
+  },
+  
   render : func(output) {
     me.initialize();
     output.title = (me.airport != nil) ? me.airport.id ~ " DEPARTURES" : "DEPARTURES";
@@ -98,6 +143,7 @@ var cduDeparture = {
         foreach(var rwy; keys(me.airport.runways)) {
           append(rwys, rwy);
         }
+        rwys = sort(rwys, func(a, b) { return cmp(a,b); });
     }
     return rwys;
   },
@@ -130,6 +176,7 @@ var cduDeparture = {
     }
     return trans;
   }
+  
 };
 
 var cduLegs = {
@@ -459,6 +506,9 @@ var key = func(v) {
       }
       else if (cduDisplay == "RTE1_LEGS") {
         cduInput = cduLegs.lskPressed(v, cduInput);
+      }
+      else if (cduDisplay == "RTE1_DEP") {
+        cduInput = cduDeparture.lskPressed(v, cduInput);
       }
       else { # dispatch by key (old)  
         if (v == "LSK1L"){
