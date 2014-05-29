@@ -30,28 +30,43 @@ var _cduPageParent = {
 
 var cduDeparture = {
   parents : [ _cduPageParent ],
+  initialized : 0,
   airport : nil,
   selectedRunway : nil,
-  selectedSid : nil,
+  selectedSid : "(none)",
   selectedTrans : nil,
   
   lskPressed : func(key, cduInput) {
     var line = me.getLSKLine(key); 
     if (me.isLSKRight(key)) {
-      if (line >=0 and line <5 and !me.hasSelectedRunway()) {
-        me.selectRunway(line);
-        return "";
+      if (!me.hasSelectedRunway()) {
+        if (line >=0 and line <5) {
+          me.selectRunway(line);
+          return "";
+        }
+      }
+      else {
+        if (line == 0) {
+          me.selectedRunway = nil;
+          me.selectedSid = "(none)";
+        }
       }
     }
     else if (me.isLSKLeft(key)) {
-      if (line>=0 and line<5 and !me.hasSelectedSid()) {
-        me.selectSid(line);
+      if (me.hasSelectedSid()) {
+        if (line == 0) me.selectedSid = nil;
+      }
+      else {
+        if (line>=0 and line<5 ) {
+          me.selectSid(line);
+        }
       }
       if (line==5 and me.hasSelectedRunway()) {
         # Erase
         me.selectedRunway = "";
         me.selectedSid = "";
         me.selectedTrans = "";
+        me.initialized = 0;
         me.storeDepartureInfo();
       }
     }
@@ -77,11 +92,13 @@ var cduDeparture = {
   storeDepartureInfo : func() {
     setprop("autopilot/route-manager/departure/runway", me.selectedRunway);
     setprop("autopilot/route-manager/departure/sid", me.selectedSid);
-    print("Rwy: ", me.selectedRunway, ", SID: ", me.selectedSid);
+    print("Storing Rwy: ", me.selectedRunway, ", SID: ", me.selectedSid);
   },
   
   render : func(output) {
-    me.initialize();
+    if (me.initialized == 0) {
+      me.initialize();
+    }
     output.title = (me.airport != nil) ? me.airport.id ~ " DEPARTURES" : "DEPARTURES";
 		output.leftTitle[0] = me.hasSelectedSid() ? "SID" : "SIDS";
     output.rightTitle[0] = me.hasSelectedRunway() ? "RWY" : "RUNWAYS";
@@ -130,7 +147,8 @@ var cduDeparture = {
   initialize : func() {
     me.airport = flightplan().departure;
     me.selectedRunway = getprop("autopilot/route-manager/departure/runway");
-    me.selectedSid = getprop("autopilot/route-manager/departure/sid");
+    #me.selectedSid =    getprop("autopilot/route-manager/departure/sid");
+    me.initialized = 1;
   },
   
   hasSelectedRunway : func() { return me.selectedRunway != nil and me.selectedRunway != ""; },
@@ -149,7 +167,7 @@ var cduDeparture = {
   },
   
   getSids : func() {
-    var sids = [];
+    var sids = [ "(none)" ];
     if ( me.airport != nil and me.hasSelectedRunway() ) {
       var apt = me.airport;
       var rwy = flightplan().departure_runway;
