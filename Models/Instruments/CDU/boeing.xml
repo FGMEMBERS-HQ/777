@@ -1181,14 +1181,8 @@
 			<value>RTE1_1</value>
 		</binding>
     <binding>
-			<condition>
-				<equals>
-					<property>instrumentation/cdu/display</property>
-					<value>RTE1_LEGS</value>
-				</equals>
-			</condition>
 			<command>nasal</command>
-			<script>cdu.cduLegs.scrollPage(-1);</script>
+			<script>cdu.key('PREV_PAGE');</script>
 		</binding>
 	</action>
 </animation>
@@ -1211,14 +1205,8 @@
 			<value>RTE1_2</value>
 		</binding>
     <binding>
-			<condition>
-				<equals>
-					<property>instrumentation/cdu/display</property>
-					<value>RTE1_LEGS</value>
-				</equals>
-			</condition>
 			<command>nasal</command>
-			<script>cdu.cduLegs.scrollPage(1);</script>
+			<script>cdu.key('NEXT_PAGE');</script>
 		</binding>
 	</action>
 </animation>

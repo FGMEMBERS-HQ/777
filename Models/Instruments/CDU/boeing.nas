@@ -6,6 +6,7 @@ var _cduPageParent = {
   LSK_LEFT_KEYS : [ "LSK1L", "LSK2L", "LSK3L", "LSK4L", "LSK5L", "LSK6L" ],
   LSK_RIGHT_KEYS : [ "LSK1R", "LSK2R", "LSK3R", "LSK4R", "LSK5R", "LSK6R" ],
   
+  scrollPage : func(direction) {}, # abstract function...
   isLSKLeft : func(v) {
     for (var i=0; i<6; i=i+1) {
       if (v == me.LSK_LEFT_KEYS[i]) return 1;
@@ -25,6 +26,10 @@ var _cduPageParent = {
       }
     }
     return -1;
+  },
+  calculatePageCount : func(dataCount, diplayedDataCount) {
+    var pages = int(dataCount / diplayedDataCount);
+    return (dataCount > pages * diplayedDataCount) ? pages + 1 : pages;
   }
 };
 
@@ -35,7 +40,19 @@ var cduDeparture = {
   selectedRunway : nil,
   selectedSid : "(none)",
   selectedTrans : nil,
+  page : 0,
   
+  scrollPage : func(direction) {
+    me.page = me.page + direction;
+    if (me.page < 0) me.page = 0;
+    
+    var cnt = 2;
+    if (!me.hasSelectedRunway()) cnt = size(me.getRunways());
+    else if (!me.hasSelectedSid()) cnt = size(me.getSids());
+    var pageCnt = me.calculatePageCount(cnt, 5);
+    
+    if (me.page >= pageCnt) me.page = pageCnt - 1;
+  },
   lskPressed : func(key, cduInput) {
     var line = me.getLSKLine(key); 
     if (me.isLSKRight(key)) {
@@ -75,16 +92,20 @@ var cduDeparture = {
   
   selectRunway : func(line) {
     var rwys = me.getRunways();
-    if (line < size(rwys)) {
-      me.selectedRunway = rwys[line];
+    var i = line + (me.page * 5);
+    if (i < size(rwys)) {
+      me.selectedRunway = rwys[i];
+      me.page = 0; # selected, return to page 0
       me.storeDepartureInfo();
     }
   },
   
   selectSid : func(line) {
     var sids = me.getSids();
-    if (line < size(sids)) {
-      me.selectedSid = sids[line];
+    var i = line + (me.page * 5);
+    if (i < size(sids)) {
+      me.selectedSid = sids[i];
+      me.page = 0; # selected, return to page 0
       me.storeDepartureInfo();
     }
   },
@@ -99,6 +120,9 @@ var cduDeparture = {
     if (me.initialized == 0) {
       me.initialize();
     }
+    var dataCount = 2;
+    var max = func(a,b) { return (a>b) ? a : b; };
+    
     output.title = (me.airport != nil) ? me.airport.id ~ " DEPARTURES" : "DEPARTURES";
 		output.leftTitle[0] = me.hasSelectedSid() ? "SID" : "SIDS";
     output.rightTitle[0] = me.hasSelectedRunway() ? "RWY" : "RUNWAYS";
@@ -116,14 +140,16 @@ var cduDeparture = {
           output.left[line] = transitions[i];
           line = line + 1;
         }
+        dataCount = max(dataCount, size(transitions) + 1);
       }
     } else {
       var sids = me.getSids();
       var line = 0;
-      for (var i=0; i<size(sids) and line <5; i=i+1) {
+      for (var i=(me.page * 5); i<size(sids) and line <5; i=i+1) {
         output.left[line] = sids[i];
         line = line + 1;
       }
+      dataCount = max(dataCount, size(sids));
     }
     
     if (me.hasSelectedRunway()) {
@@ -132,12 +158,17 @@ var cduDeparture = {
     else {
       var rwys = me.getRunways();
       var line = 0;
-      for (var i=0; i<size(rwys) and line<5; i=i+1) {
+      for (var i=(me.page * 5); i<size(rwys) and line<5; i=i+1) {
         output.right[line] = rwys[i];
         line = line + 1;
       }
+      dataCount = max(dataCount, size(rwys));
     }
 		
+    output.page = (me.page + 1) ~ "/" ~ me.calculatePageCount(dataCount, 5);
+    
+    output.leftTitle[5]  = "-----------------------";
+    output.rightTitle[5] = "-----------------------";
     if ( me.selectedRunway != nil or me.selectedSid != nil ) {
       output.left[5] = "<ERASE";
     }
@@ -333,9 +364,7 @@ var cduLegs = {
     return props.globals.getNode("autopilot/route-manager/route").getChildren("wp");
   },
   getPageCount: func() {
-    var waypointsCnt = size(me.getWaypoints());
-    var pages = int(waypointsCnt / 5);
-    return (waypointsCnt > pages * 5) ? pages + 1 : pages;
+    return me.calculatePageCount(size(me.getWaypoints()), 5);
   }
 };
 
@@ -531,7 +560,14 @@ var key = func(v) {
       # dispatch by page (new)
       if (contains(cduPages, cduDisplay)) {
         var page = cduPages[cduDisplay];
-        cduInput = page.lskPressed(v, cduInput);
+        if (v == "NEXT_PAGE") {
+          page.scrollPage(1);
+        } else if (v == "PREV_PAGE") {
+          page.scrollPage(-1);
+        }
+        else {
+          cduInput = page.lskPressed(v, cduInput);
+        }
       }
       
       else { # dispatch by key (old)  
