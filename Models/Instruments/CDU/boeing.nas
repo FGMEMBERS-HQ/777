@@ -78,8 +78,9 @@ var cduDeparture = {
           me.selectSid(line);
         }
       }
-      if (line==5 and me.hasSelectedRunway()) {
+      if (line==5 and (me.selectedRunway != nil or me.selectedSid != nil)) {
         # Erase
+        me.airport = nil;
         me.selectedRunway = "";
         me.selectedSid = "";
         me.selectedTrans = "";
