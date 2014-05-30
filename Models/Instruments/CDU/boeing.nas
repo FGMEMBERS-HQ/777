@@ -33,13 +33,110 @@ var _cduPageParent = {
   }
 };
 
-var cduDeparture = {
+var _cduDepartureArrivalParent = {
   parents : [ _cduPageParent ],
-  initialized : 0,
   airport : nil,
   selectedRunway : nil,
   selectedSid : "(none)",
-  selectedTrans : nil,
+  selectedSidTrans : nil,
+  selectedArrival : "(none)",
+  selectedStar : "(none)",
+  selectedStarTrans : nil,
+  hasSelectedRunway : func() { return me.selectedRunway != nil and me.selectedRunway != ""; },
+  hasSelectedSid : func() { return me.selectedSid != nil and me.selectedSid != ""; },
+  hasSelectedSidTrans : func() { return me.selectedSidTrans != nil and me.selectedSidTrans != ""; },hasSelectedArrival : func() { return me.selectedArrival != nil and me.selectedArrival != ""; },
+  hasSelectedStar : func() { return me.selectedStar != nil and me.selectedStar != ""; },
+  hasSelectedStarTrans : func() { return me.selectedStarTrans != nil and me.selectedStarTrans != ""; },
+  
+  getRunways : func() {
+    var rwys = [];
+    if ( me.airport != nil ) {
+        foreach(var rwy; keys(me.airport.runways)) {
+          append(rwys, rwy);
+        }
+        rwys = sort(rwys, func(a, b) { return cmp(a,b); });
+    }
+    return rwys;
+  },
+  
+  getApproaches : func() {
+    var approaches = [ "(none)" ];
+    if ( me.airport != nil and me.hasSelectedRunway() ) {
+      var apt = me.airport;
+      var rwy = flightplan().departure_runway;
+      var approachList = apt.getApproachList(rwy);
+      if (size(approachList) == 0) {
+        append(approaches, "DEFAULT");
+      }
+      else {
+        foreach (var s; approachList) {
+          append(approaches, s);
+        }
+        approaches = sort(approaches, func(a, b) { return cmp(a,b); });
+      }  
+    }
+    return approaches;
+  },
+  
+  getSids : func() {
+    var sids = [ "(none)" ];
+    if ( me.airport != nil and me.hasSelectedRunway() ) {
+      var apt = me.airport;
+      var rwy = flightplan().departure_runway;
+      if (size(apt.sids(rwy)) == 0) {
+        append(sids, "DEFAULT");
+      }
+      else {
+        foreach (var s; apt.sids(rwy)) {
+          append(sids, s);
+        }
+        sids = sort(sids, func(a, b) { return cmp(a,b); });
+      }  
+    }
+    return sids;
+  },
+  
+  getStars : func() {
+    var stars = [ "(none)" ];
+    if (me.airport != nil and me.hasSelectedRunway() ) {
+      var apt = me.airport;
+      var rwy = flightplan().departure_runway;
+      foreach (var s; apt.stars(rwy)) {
+          append(stars, s);
+      }
+      stars = sort(stars, func(a, b) { return cmp(a,b); });
+    }
+    return stars;
+  },
+  
+  getSidTransitions : func() {
+    var trans = [];
+    
+    if (me.airport != nil and me.hasSelectedSid() != nil) {
+      var sid = me.airport.getSid(me.selectedSid);
+      if (sid != nil) {
+       trans = sid.transitions;
+      }
+    }
+    return trans;
+  },
+  
+  getStarTransitions : func() {
+    var trans = [];
+    
+    if (me.airport != nil and me.hasSelectedStar() != nil) {
+      var star = me.airport.getStar(me.selectedStar);
+      if (star != nil) {
+       trans = star.transitions;
+      }
+    }
+    return trans;
+  }
+};
+
+var cduDeparture = {
+  parents : [ _cduDepartureArrivalParent ],
+  initialized : 0,
   page : 0,
   
   scrollPage : func(direction) {
@@ -83,7 +180,7 @@ var cduDeparture = {
         me.airport = nil;
         me.selectedRunway = "";
         me.selectedSid = "";
-        me.selectedTrans = "";
+        me.selectedSidTrans = "";
         me.initialized = 0;
         me.storeDepartureInfo();
       }
@@ -131,11 +228,11 @@ var cduDeparture = {
     if (me.hasSelectedSid()) {
       output.left[0] = me.selectedSid;
       output.leftTitle[1] = "TRANS";
-      if (me.hasSelectedTrans()) {
-        output.left[1] = me.selectedTrans;
+      if (me.hasSelectedSidTrans()) {
+        output.left[1] = me.selectedSidTrans;
       }
       else {
-        var transitions = me.getTransitions();
+        var transitions = me.getSidTransitions();
         var line = 1;
         for (var i=0; i<size(transitions) and line<5; i=i+1) {
           output.left[line] = transitions[i];
@@ -182,50 +279,6 @@ var cduDeparture = {
     #me.selectedSid =    getprop("autopilot/route-manager/departure/sid");
     me.initialized = 1;
   },
-  
-  hasSelectedRunway : func() { return me.selectedRunway != nil and me.selectedRunway != ""; },
-  hasSelectedSid : func() { return me.selectedSid != nil and me.selectedSid != ""; },
-  hasSelectedTrans : func() { return me.selectedTrans != nil and me.selectedTrans != ""; },
-  
-  getRunways : func() {
-    var rwys = [];
-    if ( me.airport != nil ) {
-        foreach(var rwy; keys(me.airport.runways)) {
-          append(rwys, rwy);
-        }
-        rwys = sort(rwys, func(a, b) { return cmp(a,b); });
-    }
-    return rwys;
-  },
-  
-  getSids : func() {
-    var sids = [ "(none)" ];
-    if ( me.airport != nil and me.hasSelectedRunway() ) {
-      var apt = me.airport;
-      var rwy = flightplan().departure_runway;
-      if (size(apt.sids(rwy)) == 0) {
-        append(sids, "DEFAULT");
-      }
-      else {
-        foreach (var s; apt.sids(rwy)) {
-          append(sids, s);
-        }
-      }  
-    }
-    return sids;
-  },
-  
-  getTransitions : func() {
-    var trans = [];
-    
-    if (me.airport != nil and me.hasSelectedSid() != nil) {
-      var sid = me.airport.getSid(me.selectedSid);
-      if (sid != nil) {
-       trans = sid.transitions;
-      }
-    }
-    return trans;
-  }
   
 };
 
