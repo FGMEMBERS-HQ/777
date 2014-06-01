@@ -39,12 +39,13 @@ var _cduDepartureArrivalParent = {
   selectedRunway : nil,
   selectedSid : "(none)",
   selectedSidTrans : nil,
-  selectedArrival : "(none)",
+  selectedApproach : "(none)",
   selectedStar : "(none)",
   selectedStarTrans : nil,
   hasSelectedRunway : func() { return me.selectedRunway != nil and me.selectedRunway != ""; },
   hasSelectedSid : func() { return me.selectedSid != nil and me.selectedSid != ""; },
-  hasSelectedSidTrans : func() { return me.selectedSidTrans != nil and me.selectedSidTrans != ""; },hasSelectedArrival : func() { return me.selectedArrival != nil and me.selectedArrival != ""; },
+  hasSelectedSidTrans : func() { return me.selectedSidTrans != nil and me.selectedSidTrans != ""; },
+  hasSelectedApproach : func() { return me.selectedApproach != nil and me.selectedApproach != ""; },
   hasSelectedStar : func() { return me.selectedStar != nil and me.selectedStar != ""; },
   hasSelectedStarTrans : func() { return me.selectedStarTrans != nil and me.selectedStarTrans != ""; },
   
@@ -63,7 +64,7 @@ var _cduDepartureArrivalParent = {
     var approaches = [ "(none)" ];
     if ( me.airport != nil and me.hasSelectedRunway() ) {
       var apt = me.airport;
-      var rwy = flightplan().departure_runway;
+      var rwy = flightplan().destination_runway;
       var approachList = apt.getApproachList(rwy);
       if (size(approachList) == 0) {
         append(approaches, "DEFAULT");
@@ -100,7 +101,7 @@ var _cduDepartureArrivalParent = {
     var stars = [ "(none)" ];
     if (me.airport != nil and me.hasSelectedRunway() ) {
       var apt = me.airport;
-      var rwy = flightplan().departure_runway;
+      var rwy = flightplan().destination_runway;
       foreach (var s; apt.stars(rwy)) {
           append(stars, s);
       }
@@ -131,6 +132,215 @@ var _cduDepartureArrivalParent = {
       }
     }
     return trans;
+  }
+};
+
+var cduArrival = {
+  parents : [ _cduDepartureArrivalParent ],
+  initialized : 0,
+  page : 0,
+  
+  lskPressed : func(key, cduInput) {
+     var line = me.getLSKLine(key);
+     if (me.isLSKRight(key)) {
+      if (line >=0 and line <5) {
+        # runway or approach selection...
+        if (!me.hasSelectedRunway()) {
+          # runway selection
+          me.selectRunway(line);
+          return "";
+        }
+        else {
+          if (line == 0) {
+            # select another runway
+            me.selectedRunway = nil;
+            me.selectedStar = nil;
+          }
+          else if (!me.hasSelectedApproach()) {
+            # an approach has been selected
+            me.selectApproach(line);
+            return "";
+          }
+          else if (line==1) {
+            me.selectedApproach = 0;
+          }
+        }
+      }
+      else {
+        # handle LSK6R...
+      }
+    }
+    else if (me.isLSKLeft(key)) {
+      if (line >=0 and line <5) {
+        # stars and trans selection...
+        if (!me.hasSelectedStar()) {
+          # select a star...
+          me.selectStar(line);
+          return "";
+        }
+        else if (line==0) {
+          # select another star...
+          me.selectedStar = nil;
+        }
+      }
+      else if (line==5 and (me.selectedRunway != nil or me.selectedStar != nil or me.selectedApproach != nil)) {
+        # Erase
+        me.airport = nil;
+        me.selectedRunway = "";
+        me.selectedApproach = "";
+        me.selectedStar = "";
+        me.selectedStarTrans = "";
+        me.initialized = 0;
+        me.storeArrivalInfo();
+      }
+    }
+    return cduInput;
+  },
+  
+  selectRunway : func(line) {
+    var rwys = me.getRunways();
+    var i = line + (me.page * 5);
+    if (i < size(rwys)) {
+      if (me.selectedRunway != rwys[i]) {
+        me.selectedApproach = nil;
+        me.selectedStar = nil;
+      }
+      me.selectedRunway = rwys[i];
+      me.page = 0; # selected, return to page 0
+      me.storeArrivalInfo();
+    }
+  },
+  
+  selectStar : func(line) {
+    var stars = me.getStars();
+    var i = line + (me.page * 5);
+    if (i < size(stars)) {
+      me.selectedStar = stars[i];
+      me.selectedStarTrans = nil;
+      me.page = 0;
+      me.storeArrivalInfo();
+    }
+  },
+  
+  selectApproach : func(line) {
+    var apprs = me.getApproaches();
+    var i = (line-1) + (me.page * 4);
+    if (i >= 0 and i < size(apprs)) {
+      me.selectedApproach = apprs[i];
+      me.page = 0;
+      me.storeArrivalInfo();
+    }
+  },
+  
+  storeArrivalInfo : func() {
+    var nilIsNone = func(o) { return (o==nil) ? "(none)" : o; };
+    setprop("autopilot/route-manager/destination/runway", me.selectedRunway);
+    setprop("autopilot/route-manager/destination/star", nilIsNone(me.selectedStar));
+    setprop("autopilot/route-manager/destination/approach", nilIsNone(me.selectedApproach));
+    print("Storing Rwy: ", me.selectedRunway, ", STAR: ", nilIsNone(me.selectedSid), " APPR: ", nilIsNone(me.selectedApproach));
+  },
+  
+  render : func(output) {
+    if (me.initialized == 0) {
+      me.initialize();
+    }
+    var dataCount = 2;
+    var max = func(a,b) { return (a>b) ? a : b; };
+    
+    output.title = (me.airport != nil) ? me.airport.id ~ " ARRIVALS" : "ARRIVALS";
+		output.leftTitle[0] = me.hasSelectedSid() ? "STAR" : "STARS";
+    output.rightTitle[0] = me.hasSelectedRunway() ? "RUNWAY" : "RUNWAYS";
+		
+    if (me.hasSelectedStar()) {
+      output.left[0] = me.selectedStar;
+      output.leftTitle[1] = "TRANS";
+      if (me.hasSelectedStarTrans()) {
+        output.left[1] = me.selectedStarTrans;
+      }
+      else {
+        var transitions = me.getStarTransitions();
+        var line = 1;
+        for (var i=0; i<size(transitions) and line<5; i=i+1) {
+          output.left[line] = transitions[i];
+          line = line + 1;
+        }
+        dataCount = max(dataCount, size(transitions) + 1);
+      }
+    } else {
+      var stars = me.getStars();
+      var line = 0;
+      for (var i=(me.page * 5); i<size(stars) and line <5; i=i+1) {
+        output.left[line] = stars[i];
+        line = line + 1;
+      }
+      dataCount = max(dataCount, size(stars));
+    }
+    
+    if (me.hasSelectedRunway()) {
+      output.right[0] = me.selectedRunway;
+      if (me.hasSelectedApproach()) {
+        output.rightTitle[1] = "APPROACH";
+        output.right[1] = me.selectedApproach;
+      }
+      else {
+        output.rightTitle[1] = "APPROACHES";
+        var approaches = me.getApproaches();
+        var line = 1;
+        for (var i=0; i<size(approaches) and line<5; i=i+1) {
+          output.right[line] = approaches[i];
+          line = line + 1;
+        }
+        dataCount = max(dataCount, size(approaches) + 1);
+      }
+    } 
+    else {
+      var rwys = me.getRunways();
+      var line = 0;
+      for (var i=(me.page * 5); i<size(rwys) and line<5; i=i+1) {
+        output.right[line] = rwys[i];
+        line = line + 1;
+      }
+      dataCount = max(dataCount, size(rwys));
+    }
+		
+    output.page = (me.page + 1) ~ "/" ~ me.calculatePageCount(dataCount, 5);
+    
+    output.leftTitle[5]  = "-----------------------";
+    output.rightTitle[5] = "-----------------------";
+    if ( me.selectedRunway != nil or me.selectedStar != nil or me.selectedApproach != nil) {
+      output.left[5] = "<ERASE";
+    }
+		output.right[5] = "ROUTE>";
+  },
+  
+  scrollPage : func(direction) {
+    me.page = me.page + direction;
+    if (me.page < 0) me.page = 0;
+    
+    var cnt = 2;
+    var pageSize = (!me.hasSelectedRunway() or !me.hasSelectedStar()) ? 5 : 4;
+    
+    if (!me.hasSelectedRunway()) {
+      cnt = size(me.getRunways());
+    }
+    else {
+      if (!me.hasSelectedStar()) cnt = size(me.getStars());
+      if (!me.hasSelectedApproach()) {
+        var max = func(a,b) { return (a>b) ? a : b; };
+        cnt = max(cnt, size(me.getApproaches()) + 1);
+      }
+    }
+    var pageCnt = me.calculatePageCount(cnt, pageSize);
+    
+    if (me.page >= pageCnt) me.page = pageCnt - 1;
+  },
+  
+  initialize : func() {
+    me.airport = flightplan().destination;
+    me.selectedRunway = getprop("autopilot/route-manager/destination/runway");
+    me.selectedStar = getprop("autopilot/route-manager/destination/star");
+    me.selectedArrival = getprop("autopilot/route-manager/destination/approach");
+    me.initialized = 1;
   }
 };
 
@@ -600,7 +810,8 @@ var cduHold = {
 var cduPages = {
   "HOLD"  : cduHold,
   "RTE1_LEGS" : cduLegs,
-  "RTE1_DEP" : cduDeparture
+  "RTE1_DEP" : cduDeparture,
+  "RTE1_ARR" : cduArrival
 };
 
 
