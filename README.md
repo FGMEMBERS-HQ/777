@@ -25,6 +25,18 @@ CDU page HOLD
 
 The HOLD page has been added and it is fully functional.
 
+CDU page DEPARTURE
+------------------
+
+The DEP page allows selection of departure runway and SID. Support for transmissions is
+currently not yet implemented.
+
+CDU page ARRIVAL
+----------------
+
+The ARR page allows selection of destination runway, approach and STAR.
+Transitions are not yet implemented. 
+
 
 
 
