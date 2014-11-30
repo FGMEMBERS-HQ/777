@@ -286,7 +286,7 @@ var cduArrival = {
         output.rightTitle[1] = "APPROACHES";
         var approaches = me.getApproaches();
         var line = 1;
-        for (var i=0; i<size(approaches) and line<5; i=i+1) {
+        for (var i=(me.page * 4); i<size(approaches) and line<5; i=i+1) {
           output.right[line] = approaches[i];
           line = line + 1;
         }
