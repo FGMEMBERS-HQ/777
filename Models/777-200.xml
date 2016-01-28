@@ -81,6 +81,7 @@ Syd Adams
 
     <effect>
         <inherits-from>Effects/model-transparent</inherits-from>
+        <object-name>redlight</object-name>
         <object-name>redflash</object-name>
         <object-name>whiteflash</object-name>
         <object-name>greenflash</object-name>
@@ -95,6 +96,12 @@ Syd Adams
         <object-name>greennav</object-name>
         <object-name>rednav</object-name>
     </effect>
+
+    <model>
+        <name>flightdeck-200</name>
+        <usage>interior</usage>
+        <path>Aircraft/777/Models/flightdeck-200.xml</path>
+    </model>
 
     <model>
         <name>LandingLights</name>
@@ -116,24 +123,6 @@ Syd Adams
         </offsets>
     </model>
 
-    <model>
-        <name>flightdeck</name>
-        <path>Aircraft/777/Models/flightdeck.xml</path>
-        <offsets>
-            <x-m>-21.750</x-m>
-            <y-m>0</y-m>
-            <z-m>0</z-m>
-            <pitch-deg>0</pitch-deg>
-        </offsets>
-    </model>
-
-    <animation>
-        <type>select</type>
-        <object-name>flightdeck</object-name>
-        <condition>
-            <property>sim/current-view/internal</property>
-        </condition>
-    </animation>
 
     <animation>
         <type>shader</type>
@@ -241,7 +230,7 @@ Syd Adams
     <animation>
         <type>rotate</type>
         <object-name>Rudder</object-name>
-        <property>controls/flight/rudder</property>
+        <property>surface-positions/rudder-pos-norm</property>
         <factor>35</factor>
         <center>
             <x-m>31.265</x-m>
@@ -259,7 +248,7 @@ Syd Adams
         <type>rotate</type>
         <object-name>LHelevator</object-name>
         <object-name>LHstab</object-name>
-        <property>controls/flight/elevator-trim</property>
+        <property>surface-positions/stabilizer-pos-norm</property>
         <factor>-15</factor>
         <center>
             <x-m>31.529</x-m>
@@ -294,7 +283,7 @@ Syd Adams
         <type>rotate</type>
         <object-name>RHelevator</object-name>
         <object-name>RHstab</object-name>
-        <property>controls/flight/elevator-trim</property>
+        <property>surface-positions/stabilizer-pos-norm</property>
         <factor>15</factor>
         <center>
             <x-m>32.151</x-m>
@@ -329,10 +318,10 @@ Syd Adams
         <type>rotate</type>
         <object-name>Raileron</object-name>
         <condition>
-			<greater-than>
-		        <property>surface-positions/flap-pos-norm</property>
-				<value>0</value>
-			</greater-than>
+            <greater-than>
+                <property>surface-positions/flap-pos-norm</property>
+                <value>0</value>
+            </greater-than>
         </condition>
         <property>surface-positions/right-aileron-pos-norm</property>
         <factor>-15</factor>
@@ -347,25 +336,25 @@ Syd Adams
             <z>-0.090</z>
         </axis>
     </animation>
-    
+
     <animation>
         <type>rotate</type>
         <object-name>Rflaperon</object-name>
         <property>surface-positions/right-aileron-pos-norm</property>
         <interpolation>
-            <entry> 
-                <ind>-1.0</ind>  
-                <dep>-3.0</dep> 
-            </entry> 
-            <entry>  
-                <ind>0</ind>  
-                <dep>0.0</dep> 
-            </entry> 
-            <entry> 
-                <ind>1.0</ind>  
-                <dep>15</dep> 
-            </entry> 
-         </interpolation> 
+            <entry>
+                <ind>-1.0</ind>
+                <dep>-3.0</dep>
+            </entry>
+            <entry>
+                <ind>0</ind>
+                <dep>0.0</dep>
+            </entry>
+            <entry>
+                <ind>1.0</ind>
+                <dep>15</dep>
+            </entry>
+         </interpolation>
         <axis>
             <x1-m> 7.77445</x1-m>
             <y1-m> 7.92046</y1-m>
@@ -375,21 +364,21 @@ Syd Adams
             <z2-m>-0.426481</z2-m>
         </axis>
     </animation>
-    
+
     <animation>
         <type>rotate</type>
         <object-name>Rflaperon</object-name>
         <property>surface-positions/flap-pos-norm</property>
         <interpolation>
-            <entry>  
-                <ind>0</ind>  
-                <dep>0.0</dep> 
-            </entry> 
-            <entry> 
-                <ind>1.0</ind>  
-                <dep>30</dep> 
-            </entry> 
-         </interpolation> 
+            <entry>
+                <ind>0</ind>
+                <dep>0.0</dep>
+            </entry>
+            <entry>
+                <ind>1.0</ind>
+                <dep>30</dep>
+            </entry>
+         </interpolation>
         <axis>
             <x1-m> 7.77445</x1-m>
             <y1-m> 7.92046</y1-m>
@@ -463,7 +452,7 @@ Syd Adams
     <animation>
         <type>rotate</type>
         <object-name>Rbrake</object-name>
-		<property>controls/flight/speedbrake-angle</property>
+        <property>controls/flight/speedbrake-angle</property>
         <interpolation>
             <entry>
                 <ind>0</ind>
@@ -495,7 +484,7 @@ Syd Adams
     <animation>
         <type>rotate</type>
         <object-name>Rbrake1</object-name>
-		<property>controls/flight/speedbrake-angle</property>
+        <property>controls/flight/speedbrake-angle</property>
         <interpolation>
             <entry>
                 <ind>0</ind>
@@ -587,7 +576,7 @@ Syd Adams
     <animation>
         <type>rotate</type>
         <object-name>Lbrake</object-name>
-		<property>controls/flight/speedbrake-angle</property>
+        <property>controls/flight/speedbrake-angle</property>
         <interpolation>
             <entry>
                 <ind>0</ind>
@@ -619,7 +608,7 @@ Syd Adams
     <animation>
         <type>rotate</type>
         <object-name>Lbrake1</object-name>
-		<property>controls/flight/speedbrake-angle</property>
+        <property>controls/flight/speedbrake-angle</property>
         <interpolation>
             <entry>
                 <ind>0</ind>
@@ -652,10 +641,10 @@ Syd Adams
         <type>rotate</type>
         <object-name>Laileron</object-name>
         <condition>
-			<greater-than>
-		        <property>surface-positions/flap-pos-norm</property>
-				<value>0</value>
-			</greater-than>
+            <greater-than>
+                <property>surface-positions/flap-pos-norm</property>
+                <value>0</value>
+            </greater-than>
         </condition>
         <property>surface-positions/left-aileron-pos-norm</property>
         <factor>15</factor>
@@ -676,19 +665,19 @@ Syd Adams
         <object-name>Lflaperon</object-name>
         <property>surface-positions/left-aileron-pos-norm</property>
         <interpolation>
-            <entry> 
-                <ind>-1.0</ind>  
-                <dep>3.0</dep> 
-            </entry> 
-            <entry>  
-                <ind>0</ind>  
-                <dep>0.0</dep> 
-            </entry> 
-            <entry> 
-                <ind>1.0</ind>  
-                <dep>-15</dep> 
-            </entry> 
-         </interpolation> 
+            <entry>
+                <ind>-1.0</ind>
+                <dep>3.0</dep>
+            </entry>
+            <entry>
+                <ind>0</ind>
+                <dep>0.0</dep>
+            </entry>
+            <entry>
+                <ind>1.0</ind>
+                <dep>-15</dep>
+            </entry>
+         </interpolation>
         <axis>
             <x1-m> 7.77445</x1-m>
             <y1-m>-7.92046</y1-m>
@@ -704,15 +693,15 @@ Syd Adams
         <object-name>Lflaperon</object-name>
         <property>surface-positions/flap-pos-norm</property>
         <interpolation>
-            <entry>  
-                <ind>0</ind>  
-                <dep>0.0</dep> 
-            </entry> 
-            <entry> 
-                <ind>1.0</ind>  
-                <dep>-30</dep> 
-            </entry> 
-         </interpolation> 
+            <entry>
+                <ind>0</ind>
+                <dep>0.0</dep>
+            </entry>
+            <entry>
+                <ind>1.0</ind>
+                <dep>-30</dep>
+            </entry>
+         </interpolation>
         <axis>
             <x1-m> 7.77445</x1-m>
             <y1-m>-7.92046</y1-m>
@@ -786,7 +775,7 @@ Syd Adams
 
     <animation>
         <type>select</type>
-        <object-name>taxiL-on</object-name>
+        <object-name>Llight0</object-name>
         <condition>
             <and>
                 <property>sim/multiplay/generic/int[4]</property>
@@ -814,7 +803,8 @@ Syd Adams
         <object-name>LHLND.spot</object-name>
         <condition>
             <and>
-				<not><property>sim/rendering/rembrandt/enabled</property></not>
+                <not><property>sim/rendering/rembrandt/enabled</property></not>
+                <not><property>sim/rendering/shaders/skydome</property></not>
                 <greater-than>
                     <property>sim/multiplay/generic/int[4]</property>
                     <value>5</value>
@@ -843,7 +833,8 @@ Syd Adams
         <object-name>RHLND.spot</object-name>
         <condition>
             <and>
-				<not><property>sim/rendering/rembrandt/enabled</property></not>
+                <not><property>sim/rendering/rembrandt/enabled</property></not>
+                <not><property>sim/rendering/shaders/skydome</property></not>
                 <greater-than>
                     <property>sim/multiplay/generic/int[6]</property>
                     <value>5</value>
@@ -878,7 +869,8 @@ Syd Adams
         <object-name>CTRLND.spot</object-name>
         <condition>
             <and>
-				<not><property>sim/rendering/rembrandt/enabled</property></not>
+                <not><property>sim/rendering/rembrandt/enabled</property></not>
+                <not><property>sim/rendering/shaders/skydome</property></not>
                 <greater-than>
                     <property>sim/multiplay/generic/int[5]</property>
                     <value>5</value>
@@ -891,6 +883,20 @@ Syd Adams
                     <property>sim/time/sun-angle-rad</property>
                     <value>1.55</value>
                 </greater-than>
+            </and>
+        </condition>
+    </animation>
+
+    <animation>
+        <type>select</type>
+        <object-name>taxiL-on</object-name>
+        <condition>
+            <and>
+                <property>controls/lighting/taxi-lights</property>
+                <equals>
+                    <property>gear/gear[0]/position-norm</property>
+                    <value>1.0</value>
+                </equals>
             </and>
         </condition>
     </animation>
@@ -1295,7 +1301,7 @@ Syd Adams
 
     <animation>
         <type>rotate</type>
-        <object-name>Frontgear</object-name>
+        <object-name>Frtstrut</object-name>
         <property>controls/gear/nosegear-steering-cmd-norm</property>
         <factor>70</factor>
         <center>
@@ -1749,7 +1755,7 @@ Syd Adams
             <z-m>-5.100</z-m>
         </center>
     </animation>
-    
+
     <!-- rear axle steering -->
     <animation>
         <type>rotate</type>
@@ -2179,7 +2185,7 @@ Syd Adams
 
 <model>
  <name>Firetruck1</name>
- <path>Models/Airport/hoskosh-ti-1500.xml</path>
+ <path>Models/Airport/Vehicle/hoskosh-ti-1500.ac</path>
  <offsets>
   <x-m>60.0</x-m>
   <y-m>10.0</y-m>
@@ -2189,7 +2195,7 @@ Syd Adams
 
 <model>
  <name>Firetruck2</name>
- <path>Models/Airport/hoskosh-ti-1500.xml</path>
+ <path>Models/Airport/Vehicle/hoskosh-ti-1500.ac</path>
  <offsets>
   <x-m>80.0</x-m>
   <y-m>-8.0</y-m>

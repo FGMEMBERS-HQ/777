@@ -22,6 +22,8 @@ var Engine = {
         m.throttle.setDoubleValue(0);
         m.cutoff = props.globals.getNode("controls/engines/engine["~eng_num~"]/cutoff",1);
         m.cutoff.setBoolValue(1);
+        m.cutoffSwitch = props.globals.getNode("controls/engines/engine["~eng_num~"]/cutoff-switch",1);
+        m.cutoffSwitch.setBoolValue(0);
         m.fuel_out = props.globals.getNode("engines/engine["~eng_num~"]/no-fuel",1);
         m.fuel_out.setBoolValue(0);
         m.autostart = props.globals.getNode("controls/engines/autostart",1);
@@ -40,6 +42,8 @@ var Engine = {
         m.apu = props.globals.getNode("controls/APU", 1);
         m.apu_knob = m.apu.getNode("off-start-run", 1);
         m.apu_status = m.apu.getNode("apu_status", 1);
+        m.apu_fuel_valve = m.apu.getNode("valve/opened",1);
+        m.apu_fuel_valve.setBoolValue(0);
         m.apu_status.setValue(0);
         m.apu_gen_switch = m.apu.getNode("apu-gen-switch", 1);
         m.apu_gen_switch.setBoolValue(0);
@@ -80,7 +84,7 @@ var Engine = {
         if (n2rpm < 20) {
             me.oilPressurePsi.setDoubleValue(5.6*math.sqrt(n2rpm));
         }
-        else 
+        else
         {
             me.oilPressurePsi.setDoubleValue(0.3*n2rpm+19);
         }
@@ -90,6 +94,7 @@ var Engine = {
     },
 #### update ####
     update : func {
+        me.cutoffSwitch.setBoolValue(!me.cutoff.getBoolValue());
         me.updateOilTemp();
         me.updateOilPressure(me.n2rpm.getValue());
         me.updateOilQuantity(me.oilPressurePsi.getValue());
@@ -109,12 +114,20 @@ var Engine = {
                 }
                 me.rpm.setValue(me.n1.getValue());
                 me.n2rpm.setValue(me.n2.getValue());
-                if(me.throttle.getValue() == 0)
+                #Thrust reverser is inhibitted in air
+                if((getprop("gear/gear[1]/wow") == 0) and (getprop("gear/gear[2]/wow") == 0))
                 {
-                    var reverser_cmd = me.reverser_cmd.getValue();
-                    if(reverser_cmd != me.reverser.getValue())
+                    me.reverser_cmd.setValue(0);
+                }
+                else
+                {
+                    if(me.throttle.getValue() == 0)
                     {
-                        me.reverser.setValue(reverser_cmd);
+                        var reverser_cmd = me.reverser_cmd.getValue();
+                        if(reverser_cmd != me.reverser.getValue())
+                        {
+                            me.reverser.setValue(reverser_cmd);
+                        }
                     }
                 }
                 me.egt.setDoubleValue(me.egt_degf.getValue());
@@ -179,74 +192,77 @@ var Engine = {
         if(vmodel == "-200LR")
         {
             setprop("consumables/fuel/tank[3]/selected",
-                (getprop("consumables/fuel/tank[3]/level-gal_us") > 0)
+                !getprop("consumables/fuel/tank[3]/empty")
                 and (getprop("controls/fuel/tank[1]/boost-pump[0]") or getprop("controls/fuel/tank[1]/boost-pump[1]")));
             setprop("consumables/fuel/tank[4]/selected",
-                (getprop("consumables/fuel/tank[4]/level-gal_us") > 0)
+                !getprop("consumables/fuel/tank[4]/empty")
                 and (getprop("controls/fuel/tank[1]/boost-pump[0]") or getprop("controls/fuel/tank[1]/boost-pump[1]")));
             setprop("consumables/fuel/tank[5]/selected",
-                (getprop("consumables/fuel/tank[5]/level-gal_us") > 0)
+                !getprop("consumables/fuel/tank[5]/empty")
                 and (getprop("controls/fuel/tank[1]/boost-pump[0]") or getprop("controls/fuel/tank[1]/boost-pump[1]")));
-            setprop("consumables/fuel/tank[1]/selected", ((getprop("consumables/fuel/tank[3]/level-gal_us") < 30)
+            setprop("consumables/fuel/tank[1]/selected", (((getprop("consumables/fuel/tank[3]/level-gal_us") < 30)
                 and (getprop("consumables/fuel/tank[4]/level-gal_us") < 30)
                 and (getprop("consumables/fuel/tank[5]/level-gal_us") < 30)
-                and (getprop("consumables/fuel/tank[1]/level-gal_us") > 0)
+                and !getprop("consumables/fuel/tank[1]/empty")
+                    or (!getprop("consumables/fuel/tank[3]/selected")
+                        and !getprop("consumables/fuel/tank[4]/selected")
+                        and !getprop("consumables/fuel/tank[5]/selected")))
                 and (getprop("controls/fuel/tank[1]/boost-pump[0]") or getprop("controls/fuel/tank[1]/boost-pump[1]"))));
-            setprop("consumables/fuel/tank[0]/selected", ((getprop("consumables/fuel/tank[3]/level-gal_us") < 30)
-                and (getprop("consumables/fuel/tank[4]/level-gal_us") < 30)
-                and (getprop("consumables/fuel/tank[5]/level-gal_us") < 30)
-                and (getprop("consumables/fuel/tank[1]/level-gal_us") < 50)
-                and (getprop("consumables/fuel/tank[0]/level-gal_us") > 0.1)
+            setprop("consumables/fuel/tank[0]/selected", (!getprop("controls/fuel/tank[1]/boost-pump[0]")
+                and !getprop("controls/fuel/tank[1]/boost-pump[1]")
+                and !getprop("consumables/fuel/tank[0]/empty")
                 and (getprop("controls/fuel/tank[0]/boost-pump[0]") or getprop("controls/fuel/tank[0]/boost-pump[1]"))));
-            setprop("consumables/fuel/tank[2]/selected", ((getprop("consumables/fuel/tank[3]/level-gal_us") < 30)
-                and (getprop("consumables/fuel/tank[4]/level-gal_us") < 30)
-                and (getprop("consumables/fuel/tank[5]/level-gal_us") < 30)
-                and (getprop("consumables/fuel/tank[1]/level-gal_us") < 50)
-                and (getprop("consumables/fuel/tank[2]/level-gal_us") > 0.1)
+            setprop("consumables/fuel/tank[2]/selected", (!getprop("controls/fuel/tank[1]/boost-pump[0]")
+                and !getprop("controls/fuel/tank[1]/boost-pump[1]")
+                and !getprop("consumables/fuel/tank[2]/empty")
                 and (getprop("controls/fuel/tank[2]/boost-pump[0]") or getprop("controls/fuel/tank[2]/boost-pump[1]"))));
         }
         else
         {
-            setprop("consumables/fuel/tank[1]/selected", ((getprop("consumables/fuel/tank[1]/level-gal_us") > 0)
+            setprop("consumables/fuel/tank[1]/selected", (!getprop("consumables/fuel/tank[1]/empty")
                 and (getprop("controls/fuel/tank[1]/boost-pump[0]") or getprop("controls/fuel/tank[1]/boost-pump[1]"))));
-            setprop("consumables/fuel/tank[0]/selected", ((getprop("consumables/fuel/tank[1]/level-gal_us") < 50)
-                and (getprop("consumables/fuel/tank[0]/level-gal_us") > 0.1)
+            setprop("consumables/fuel/tank[0]/selected", (((getprop("consumables/fuel/tank[1]/level-gal_us") < 50)
+                    or (!getprop("consumables/fuel/tank[1]/selected")))
+                and !getprop("consumables/fuel/tank[0]/empty")
                 and (getprop("controls/fuel/tank[0]/boost-pump[0]") or getprop("controls/fuel/tank[0]/boost-pump[1]"))));
-            setprop("consumables/fuel/tank[2]/selected", ((getprop("consumables/fuel/tank[1]/level-gal_us") < 50)
-                and (getprop("consumables/fuel/tank[2]/level-gal_us") > 0.1)
+            setprop("consumables/fuel/tank[2]/selected", (((getprop("consumables/fuel/tank[1]/level-gal_us") < 50)
+                    or (!getprop("consumables/fuel/tank[1]/selected")))
+                and !getprop("consumables/fuel/tank[2]/empty")
                 and (getprop("controls/fuel/tank[2]/boost-pump[0]") or getprop("controls/fuel/tank[2]/boost-pump[1]"))));
         }
         if(me.eng_num == 0)
         {
-			if((getprop("consumables/fuel/tank[0]/level-gal_us") > 0) 
-					or (getprop("consumables/fuel/tank[1]/level-gal_us") > 0))
-			{
-				me.fuel_out.setBoolValue(0);
-			}
-			else
-			{
-				me.fuel_out.setBoolValue(1);
-			}
-		}
-		else
-		{
-			if((getprop("consumables/fuel/tank[2]/level-gal_us") > 0) 
-					or (getprop("consumables/fuel/tank[1]/level-gal_us") > 0))
-			{
-				me.fuel_out.setBoolValue(0);
-			}
-			else
-			{
-				me.fuel_out.setBoolValue(1);
-			}
-		}
+            if(!getprop("consumables/fuel/tank[0]/empty")
+                    or !getprop("consumables/fuel/tank[1]/empty"))
+            {
+                me.fuel_out.setBoolValue(0);
+            }
+            else
+            {
+                me.fuel_out.setBoolValue(1);
+            }
+        }
+        else
+        {
+            if(!getprop("consumables/fuel/tank[2]/empty")
+                    or !getprop("consumables/fuel/tank[1]/empty"))
+            {
+                me.fuel_out.setBoolValue(0);
+            }
+            else
+            {
+                me.fuel_out.setBoolValue(1);
+            }
+        }
         if(me.apu_knob.getValue() == 0)
         {
+            me.apu_fuel_valve.setValue(0);
             me.apu_status.setValue(0);            # OFF
             me.apu_running.setValue(0);
         }
         elsif(me.apu_knob.getValue() == 1)
         {
+            me.apu_fuel_valve.setValue(1);
             if((me.apu_running.getBoolValue() == 0)
                 and (me.apu_status.getValue() == 0))
             {
@@ -337,7 +353,7 @@ var Engine = {
         var v_consume = 0.001;
         if(me.eng_num == 0)
         {
-            if(getprop("consumables/fuel/tank[0]/selected")) 
+            if(getprop("consumables/fuel/tank[0]/selected"))
             {
                 setprop("consumables/fuel/tank[0]/level-gal_us", getprop("consumables/fuel/tank[0]/level-gal_us")- v_consume);
             }
@@ -356,7 +372,7 @@ var Engine = {
         }
         else
         {
-            if(getprop("consumables/fuel/tank[2]/selected")) 
+            if(getprop("consumables/fuel/tank[2]/selected"))
             {
                 setprop("consumables/fuel/tank[2]/level-gal_us", getprop("consumables/fuel/tank[2]/level-gal_us")- v_consume);
             }

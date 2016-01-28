@@ -9,7 +9,7 @@ name "Display_1"
 loc 0.0023435 0.0035665 -9.2499e-05
 data 6
 Circle
-texture "pfd3d.png"
+texture "../../Models/Instruments/PFD"
 crease 30.000000
 numvert 4
 0.0001405 0.0048785 0.0117255
@@ -30,7 +30,7 @@ name "Display_1"
 loc 0.0023435 0.0035665 -9.2499e-05
 data 6
 Circle
-texture "pfd3d.png"
+texture "../../Models/Instruments/PFD"
 crease 30.000000
 numvert 4
 0.0001405 0.0048785 0.0102705
@@ -51,7 +51,7 @@ name "Display_1"
 loc 0.0023435 0.0035665 -9.2499e-05
 data 6
 Circle
-texture "pfd3d.png"
+texture "../../Models/Instruments/PFD"
 crease 30.000000
 numvert 4
 0.0001405 0.0063335 0.0102705
@@ -72,7 +72,7 @@ name "Display_1"
 loc 0.0023435 0.0035665 -9.2499e-05
 data 6
 Circle
-texture "pfd3d.png"
+texture "../../Models/Instruments/PFD"
 crease 30.000000
 numvert 4
 0.0001405 0.0063335 0.0117255
@@ -93,7 +93,7 @@ name "Display_1"
 loc 0.0023435 0.0035665 -9.2499e-05
 data 6
 Circle
-texture "pfd3d.png"
+texture "../../Models/Instruments/PFD"
 crease 30.000000
 numvert 4
 0.0001405 0.0048785 0.0117255
@@ -151,7 +151,7 @@ OBJECT poly
 name "AI"
 data 9
 Plane.001
-texture "pfd3d.png"
+texture "../../Models/Instruments/PFD"
 crease 30.000000
 numvert 4
 0.001756 0.056148 -0.03607
@@ -297,7 +297,7 @@ name "Bank_ind"
 loc 0.002484 0.0417465 0.0109055
 data 6
 Circle
-texture "pfd3d.png"
+texture "../../Models/Instruments/PFD"
 crease 30.000000
 numvert 44
 0 0.0119085 0.0071285

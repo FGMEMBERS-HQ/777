@@ -45,7 +45,7 @@ WEIGHT/lbs  Vref
 
 -->
 
-<airplane mass="366940">
+<airplane mass="366940" version="YASIM_VERSION_32">
 
   <!-- Approach configuration -->
 <approach speed="145" aoa="3" fuel="0.2">
@@ -115,7 +115,7 @@ WEIGHT/lbs  Vref
   <flap0 start="0" end="1" lift="1.6" drag="1.2"/>
     <control-input axis="/controls/flight/elevator" control="FLAP0"/>
     <control-input axis="/controls/flight/elevator-trim" control="FLAP0"/>
-    <control-output control="FLAP0" prop="/surface-positions/elevator-pos-norm"/>
+    <control-output control="FLAP0" prop="/surface-positions/elevator-trim-tab-pos-norm"/>
   </hstab>
 
 <vstab x="-34.7003" y="0.00" z="2.7" chord="8.0" length="12.2" taper="0.3"
@@ -135,7 +135,7 @@ egt="825" tsfc="0.25" n1-idle="18.5" n1-max="110.5" n2-idle="70" n2-max="121" re
   <control-input axis="/controls/engines/engine[0]/throttle-act" control="THROTTLE"/>
     <control-input axis="/controls/engines/engine[0]/reverser-act" control="REVERSE_THRUST"/>
     <control-output control="REVERSE_THRUST" prop="/surface-positions/reverser-norm[0]"/>
-    <control-speed control="REVERSE_THRUST" transition-time="4"/>
+    <control-speed control="REVERSE_THRUST" transition-time="3"/>
     <actionpt x="-2.7" y="9.89" z="-2.995"/>
   </jet>
 
@@ -144,7 +144,7 @@ egt="825" tsfc="0.25" n1-idle="18.5" n1-max="110.5" n2-idle="70" n2-max="121" re
   <control-input axis="/controls/engines/engine[1]/throttle-act" control="THROTTLE"/>
     <control-input axis="/controls/engines/engine[1]/reverser-act" control="REVERSE_THRUST"/>
     <control-output control="REVERSE_THRUST" prop="/surface-positions/reverser-norm[1]"/>
-    <control-speed control="REVERSE_THRUST" transition-time="4"/>
+    <control-speed control="REVERSE_THRUST" transition-time="3"/>
     <actionpt x="-2.7" y="-9.89" z="-2.995"/>
   </jet>
 

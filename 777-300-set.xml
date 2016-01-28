@@ -14,6 +14,18 @@
                 <file type="string">JAL</file>
                 <texture>Liveries-300/paint1.png</texture>
             </livery>
+            <door>
+                <position-x-m type="float">-23.85</position-x-m>
+                <position-y-m type="float"> -2.95</position-y-m>
+                <position-z-m type="float"> -0.55</position-z-m>
+                <jetway-hood-deg type="float">3</jetway-hood-deg>
+            </door>
+            <door>
+                <position-x-m type="float">-13.49</position-x-m>
+                <position-y-m type="float"> -2.95</position-y-m>
+                <position-z-m type="float"> -0.55</position-z-m>
+                <jetway-hood-deg type="float">3</jetway-hood-deg>
+            </door>
         </model>
         <view n="0">
             <config n="0">
@@ -28,6 +40,66 @@
         <view n="101">
             <config n="0">
                 <z-offset-m type="double">-28.0781</z-offset-m>
+            </config>
+        </view>
+        <view n="102">
+            <config n="0">
+                <z-offset-m type="double">-27.6981</z-offset-m>
+            </config>
+        </view>
+        <view n="103">
+            <config n="0">
+            <z-offset-m type="double">-12.347988889</z-offset-m>
+            </config>
+        </view>
+        <view n="104">
+            <config n="0">
+            <z-offset-m type="double">-26.7381</z-offset-m>
+            </config>
+        </view>
+        <view n="105">
+            <config n="0">
+            <z-offset-m type="double">-26.90185</z-offset-m>
+            </config>
+        </view>
+        <view n="106">
+            <config n="0">
+            <z-offset-m type="double">-26.9781</z-offset-m>
+            </config>
+        </view>
+        <view n="107">
+            <config n="0">
+            <z-offset-m type="double">-27.55035</z-offset-m>
+            </config>
+        </view>
+        <view n="108">
+            <config n="0">
+            <z-offset-m type="double">-27.55035</z-offset-m>
+            </config>
+        </view>
+        <view n="111">
+            <config n="0">
+            <z-offset-m type="double">40</z-offset-m>
+            </config>
+        </view>
+        <view n="112">
+            <config n="0">
+            <z-offset-m type="double">-27.8658777</z-offset-m>
+            </config>
+        </view>
+        <view n="113">
+            <config n="0">
+            <z-offset-m type="double">-27.8658777</z-offset-m>
+            </config>
+        </view>
+        <view n="114">
+            <config n="0">
+            <z-offset-m type="double">-27.54935</z-offset-m>
+            </config>
+        </view>
+        <view n="115">
+            <config n="0">
+            <z-offset-m type="double">-27.54935</z-offset-m>
             </config>
         </view>
 
@@ -56,6 +128,7 @@
             <max-lb type="double">147200</max-lb>
             <min-lb type="double">0</min-lb>
         </weight>
+        <aircraft-operator>JAL</aircraft-operator>
     </sim>
 
     <instrumentation n="0">
@@ -70,11 +143,11 @@
     <autopilot n="0">
         <constant>
             <flare-base type="double">0.21</flare-base>
-			<flch-thrust type="double">0.83</flch-thrust>
-			<descent-profile-high-base type="double">0.14</descent-profile-high-base>
-			<descent-profile-high-rate type="double">-0.00082160</descent-profile-high-rate>
-			<descent-profile-low-base type="double">0.13</descent-profile-low-base>
-			<descent-profile-low-rate type="double">-0.00029343</descent-profile-low-rate>
+            <flch-thrust type="double">0.83</flch-thrust>
+            <descent-profile-high-base type="double">0.14</descent-profile-high-base>
+            <descent-profile-high-rate type="double">-0.00082160</descent-profile-high-rate>
+            <descent-profile-low-base type="double">0.13</descent-profile-low-base>
+            <descent-profile-low-rate type="double">-0.00029343</descent-profile-low-rate>
         </constant>
     </autopilot>
 
