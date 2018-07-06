@@ -25,6 +25,28 @@
             <reference-dist>600.0</reference-dist>
             <max-dist>6000.0</max-dist>
         </engine>
+
+    <engine>
+		<name>low l out</name>
+		<mode>looped</mode>
+		<path>Aircraft/777/Sounds/xlow.wav</path>
+		<property>engines/engine[0]/n1</property>
+		<condition>
+			<not><property>sim/current-view/internal</property></not>
+		</condition>
+		<volume>
+			<property>engines/engine[0]/n1</property>
+			<factor>0.044</factor>
+			<max>1</max>
+		</volume>
+		<pitch>
+			<property>engines/engine[0]/n1</property>
+			<offset>0</offset>
+			<factor>0.02</factor>
+			<max>2</max>
+		</pitch>
+	</engine>
+
         <engine>
             <name>right engine</name>
             <path>/Aircraft/777/Sounds/jet-trent2.wav</path>
@@ -49,6 +71,27 @@
             <reference-dist>600.0</reference-dist>
             <max-dist>6000.0</max-dist>
         </engine>
+        <engine>
+		<name>low r out</name>
+		<mode>looped</mode>
+		<path>Aircraft/777/Sounds/xlow.wav</path>
+		<property>engines/engine[1]/n1</property>
+		<condition>
+			<not><property>sim/current-view/internal</property></not>
+		</condition>
+		<volume>
+			<property>engines/engine[1]/n1</property>
+			<factor>0.044</factor>
+			<max>1</max>
+		</volume>
+		<pitch>
+			<property>engines/engine[1]/n1</property>
+			<offset>0</offset>
+			<factor>0.02</factor>
+			<max>2</max>
+		</pitch>
+	</engine>
+
         <engine>
             <name>left n1</name>
             <path>/Aircraft/777/Sounds/jet-trent1.wav</path>
@@ -239,12 +282,14 @@
         <gearlock>
             <name>gear-lock</name>
             <path>Sounds/gear-lck.wav</path>
-			<enable><property>sim/current-view/internal</property></enable>
             <condition>
-				<equals>
-					<property>gear/gear[0]/position-norm</property>
-					<value>0</value>
-				</equals>
+                <and>
+                    <equals>
+                        <property>gear/gear[0]/position-norm</property>
+                        <value>0</value>
+                    </equals>
+                    <property>sim/current-view/internal</property>
+                </and>
             </condition>
             <pitch>
                 <factor>0.0001</factor>
@@ -739,7 +784,7 @@
             <path>/Sounds/avionics-400Hz.wav</path>
             <mode>looped</mode>
             <type>avionics</type>
-            <property>systems/electrical/outputs/avionics</property>
+            <property>/systems/electrical/outputs/avionics</property>
             <volume>
                 <factor>0.2</factor>
             </volume>
