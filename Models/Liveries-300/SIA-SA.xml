@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+
+<PropertyList>
+<sim>
+    <model>
+        <livery>
+            <name type="string">Singapore Airlines (Star Alliance)</name>
+            <texture>Liveries-ER/SIA-SA.png</texture>
+        </livery>
+		<lights>
+			<texture>Liveries-ER/SIA-SA-lights.png</texture>
+		</lights>
+    </model>
+</sim>
+</PropertyList>

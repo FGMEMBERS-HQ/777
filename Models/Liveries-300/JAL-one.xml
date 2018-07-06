@@ -4,11 +4,11 @@
 <sim>
     <model>
         <livery>
-            <name type="string">REU Air Austral</name>
-            <texture>Liveries-300/REU.png</texture>
+            <name type="string">JAL Japan Airlines (One World)</name>
+            <texture>Liveries-300/JAL-one.png</texture>
         </livery>
     </model>
     <aircraft-class>gate</aircraft-class>
-    <aircraft-operator>REU</aircraft-operator>
+    <aircraft-operator>JAL</aircraft-operator>
 </sim>
 </PropertyList>

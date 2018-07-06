@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+
+<PropertyList>
+<sim>
+    <model>
+        <livery>
+			<name type="string">Singapore Airlines</name>
+            <texture>Liveries-300/SIA 2.png</texture>
+        </livery>
+        <lights>
+            <texture>Liveries-300/SIA-lights.png</texture>
+        </lights>
+    </model>
+</sim>
+</PropertyList>
