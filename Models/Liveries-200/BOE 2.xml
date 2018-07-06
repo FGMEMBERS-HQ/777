@@ -4,11 +4,11 @@
 <sim>
     <model>
         <livery>
-            <name type="string">BAW British Airways (Wings)</name>
-            <texture>Liveries-200/BAW-wings.png</texture>
+            <name type="string">Boeing Company 777X</name>
+            <texture>Liveries-200/BOE 2.png</texture>
         </livery>
     </model>
     <aircraft-class>gate</aircraft-class>
-   	<aircraft-operator>BAW</aircraft-operator>
+   	<aircraft-operator>BOE</aircraft-operator>
 </sim>
 </PropertyList>

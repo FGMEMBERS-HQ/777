@@ -1,15 +1,14 @@
 <?xml version="1.0"?>
-<!-- Delta Airlines 777-200LR Livery by Neil Naidu <neil_naidu@sesd.org> -->
+
 <PropertyList>
 <sim>
     <model>
         <livery>
-            <name type="string">Delta Airlines</name>
-			<texture>Liveries-200/DALnew.png</texture>
+            <name type="string">DAL Delta Airlines (Spirit of Atlanta)</name>
+            <texture>/Liveries-200/DAL_N702DN.png</texture>
         </livery>
     </model>
     <aircraft-class>gate</aircraft-class>
     <aircraft-operator>DAL</aircraft-operator>
 </sim>
-
 </PropertyList>
