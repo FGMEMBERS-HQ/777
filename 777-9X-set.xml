@@ -1,19 +1,21 @@
 <PropertyList include="777-set-common.xml">
 
     <sim n="0">
-        <description>Boeing 777-300ER with GE90-115B engines</description>
-        <aero>777-300ER</aero>
+        <description>Boeing 777-9X with GE9X-105B1A engines</description>
+        <aero>777-9X</aero>
         <max-payload type="double">408060</max-payload>
         <startup>
-            <splash-texture>Aircraft/777/splash-300ER.png</splash-texture>
+            <splash-texture>Aircraft/777/splash-9x.png</splash-texture>
         </startup>
 
         <model n="0">
-            <path>Aircraft/777/Models/777-300ER.xml</path>
+            <path>Aircraft/777/Models/777-9X.xml</path>
             <livery>
-                <file type="string">AIC</file>
-                <texture>Liveries-300/AIC.png</texture>
+                <file type="string">BOE</file>
             </livery>
+            <lights>
+                <file type="string">BOE</file>
+            </lights>
         </model>
         <view n="0">
             <config n="0">
@@ -34,7 +36,7 @@
         <menubar n="0">
             <default n="0">
                 <menu n="100">
-                    <label>777-300ER</label>
+                    <label>777-9X</label>
                 </menu>
             </default>
         </menubar>
@@ -61,8 +63,8 @@
     <instrumentation n="0">
         <cdu n="0">
             <ident>
-                <model>777-300ER</model>
-                <engines>GE90-115B</engines>
+                <model>777-9X</model>
+                <engines>RR Trent 877</engines>
             </ident>
         </cdu>
     </instrumentation>
@@ -70,7 +72,7 @@
     <autopilot n="0">
         <constant>
             <flare-base type="double">0.2</flare-base>
-			<flch-thrust type="double">0.77</flch-thrust>
+			<derate-lowalt type="double">0.77</derate-lowalt>
 			<descent-profile-high-base type="double">0.19</descent-profile-high-base>
 			<descent-profile-high-rate type="double">-0.00080214</descent-profile-high-rate>
 			<descent-profile-low-base type="double">0.15</descent-profile-low-base>
