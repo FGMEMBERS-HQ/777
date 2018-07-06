@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+
+<PropertyList>
+<sim>
+    <model>
+        <livery>
+            <name type="string">Etihad Airways (present-day colours)</name>
+            <texture>Liveries-300/A6-ETE.png</texture>
+        </livery>
+    </model>
+    <aircraft-class>gate</aircraft-class>
+    <aircraft-operator>ETD</aircraft-operator>
+</sim>
+</PropertyList>

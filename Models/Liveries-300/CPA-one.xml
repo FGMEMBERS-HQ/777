@@ -4,8 +4,8 @@
 <sim>
     <model>
         <livery>
-            <name type="string">CPA Cathay Pacific (Asia's World City)</name>
-            <texture>Liveries-300/CPA-AWC.png</texture>
+            <name type="string">CPA Cathay Pacific (One World)</name>
+            <texture>Liveries-300/CPA-one.png</texture>
         </livery>
     </model>
     <aircraft-class>gate</aircraft-class>
