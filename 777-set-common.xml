@@ -1,8 +1,8 @@
-<PropertyList>
+<PropertyList include="Aircraft/Generic/Human/Include/walker-include.xml">
 
     <sim n="0">
-        <author>Justin Smithies, Syd Adams, Thorsten Brehm, Arminair</author>
-        <status>production</status>
+        <author>Justin Smithies, Syd Adams, Thorsten Brehm, Arminair, Aviation2018 (NeilNaidu)</author>
+        <status>Production</status>
         <rating>
             <FDM type="int">4</FDM>
             <systems type="int">4</systems>
@@ -25,6 +25,24 @@
 			value is much higher depending on load, fuel, OAT -->
 			<min-runway-length-ft>4500</min-runway-length-ft>
 		</navdb>
+Splash
+		<previews>
+			<preview>
+				<type>exterior</type>
+				<splash type="bool">true</splash>
+				<path>Splash/cockpit.png</path>
+			</preview>
+			<preview>
+				<type>exterior</type>
+				<splash type="bool">true</splash>
+				<path>Splash/wing1.png</path>
+			</preview>
+			<preview>
+				<type>exterior</type>
+				<splash type="bool">true</splash>
+				<path>Splash/wing2.png</path>
+			</preview>
+		</previews>
 
         <view n="0">
             <name>Pilot View</name>
@@ -497,7 +515,15 @@ Service Ceiling: 43,100ft
             <property-rule n="101">
                 <path>Aircraft/777/Systems/777-PFD.xml</path>
             </property-rule>
-        </systems>
+
+            <!-- Wing Flexer -->
+		<wingflexer include="Systems/wingflexer-params.xml"/>
+		<property-rule n="100">
+			<name>wing flexer property rule</name>
+			<path>Aircraft/Generic/wingflexer.xml</path>
+		</property-rule>
+	</systems>
+        
 
         <instrumentation>
             <path>Aircraft/777/Systems/instrumentation.xml</path>

@@ -1,11 +1,11 @@
 <PropertyList include="777-set-common.xml">
 
     <sim n="0">
-        <description>Boeing 777-200LR with GE90-115B engines</description>
-        <aero>777-200LR</aero>
-        <max-payload type="double">440000</max-payload>
+        <description>Boeing 777-200 with General Electric GE90-76B engines</description>
+        <aero>777-200</aero>
+	    <max-payload type="double">238000</max-payload>
         <startup>
-            <splash-texture>Aircraft/777/splash-200LR.png</splash-texture>
+            <splash-texture>Aircraft/777/splash-200.png</splash-texture>
         </startup>
 		<previews>
 			<preview>
@@ -26,12 +26,12 @@
 		</previews>
 
         <model n="0">
-            <path>Aircraft/777/Models/777-200LR.xml</path>
+            <path>Aircraft/777/Models/777-200.xml</path>
             <livery>
-                <file type="string">QTR.png</file>
+                <file type="string">BA</file>
             </livery>
             <lights>
-                <file type="string">QTR.png</file>
+                <file type="string">BA</file>
             </lights>
         </model>
         <view n="0">
@@ -53,7 +53,7 @@
        <menubar n="0">
             <default n="0">
                 <menu n="100">
-                    <label>777-200LR</label>
+                    <label>777-200</label>
                 </menu>
             </default>
         </menubar>
@@ -69,39 +69,31 @@
         </tutorials>
 
          <weight n="1">
-            <!--  328 pax max @ 180 lbs -->
+            <!--  328 pax max @ 180 lbs + cargo -->
             <name>Pax/Baggage</name>
             <weight-lb type="double">44840</weight-lb>
-            <max-lb type="double">131000</max-lb>
+            <max-lb type="double">125530</max-lb>
             <min-lb type="double">0</min-lb>
         </weight>
     </sim>
 
-    <consumables n="0">
-        <fuel n="0">
-            <tank n="3"><name>Rear A</name></tank>
-            <tank n="4"><name>Rear B</name></tank>
-            <tank n="5"><name>Rear C</name></tank>
-        </fuel>
-    </consumables>
-
     <instrumentation n="0">
         <cdu n="0">
-            <ident>
-                <model>777-200LR</model>
-                <engines>GE90-115B</engines>
+            <ident n="0">
+                <model>777-200</model>
+                <engines>GE90-77B</engines>
             </ident>
         </cdu>
     </instrumentation>
 
     <autopilot n="0">
         <constant>
-            <flare-base type="double">0.2</flare-base>
-			<flch-thrust type="double">0.75</flch-thrust>
-			<descent-profile-high-base type="double">0.23</descent-profile-high-base>
-			<descent-profile-high-rate type="double">-0.00084337</descent-profile-high-rate>
-			<descent-profile-low-base type="double">0.17</descent-profile-low-base>
-			<descent-profile-low-rate type="double">-0.00033133</descent-profile-low-rate>
+            <flare-base type="double">0.315</flare-base>
+			<derate-lowalt type="double">0.85</derate-lowalt>
+			<descent-profile-high-base type="double">0.13</descent-profile-high-base>
+			<descent-profile-high-rate type="double">-0.00094203</descent-profile-high-rate>
+			<descent-profile-low-base type="double">0.12</descent-profile-low-base>
+			<descent-profile-low-rate type="double">-0.00050725</descent-profile-low-rate>
         </constant>
     </autopilot>
 

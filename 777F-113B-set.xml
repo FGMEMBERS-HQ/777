@@ -1,7 +1,7 @@
 <PropertyList include="777-set-common.xml">
 
     <sim>
-        <description>Boeing 777-200F with GE90-115B engines</description>
+        <description>Boeing 777-200F with GE90-113B engines</description>
         <status>Development</status>
         <aircraft-version>20100008</aircraft-version>
         <flight-model>yasim</flight-model>

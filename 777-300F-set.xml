@@ -1,7 +1,7 @@
 <PropertyList include="777-set-common.xml">
 
     <sim>
-        <description>Boeing 777-200F with GE90-115B engines</description>
+        <description>Boeing 777-300F with GE90-115B engines (unreleased)</description>
         <status>Development</status>
         <aircraft-version>20100008</aircraft-version>
         <flight-model>yasim</flight-model>
@@ -13,23 +13,23 @@
 		<previews>
 			<preview>
 				<type>exterior</type>
-				<splash type="bool">true</splash>
+				<splash type="bool">false</splash>
 				<path>Splash/cockpit.png</path>
 			</preview>
 			<preview>
 				<type>exterior</type>
-				<splash type="bool">true</splash>
+				<splash type="bool">false</splash>
 				<path>Splash/wing1.png</path>
 			</preview>
 			<preview>
 				<type>exterior</type>
-				<splash type="bool">true</splash>
+				<splash type="bool">false</splash>
 				<path>Splash/wing2.png</path>
 			</preview>
 		</previews>
 
         <model>
-            <path>Aircraft/777/Models/777F.xml</path>
+            <path>Aircraft/777/Models/777F-300.xml</path>
             <livery>
                 <file type="string">AFR</file>
             </livery>

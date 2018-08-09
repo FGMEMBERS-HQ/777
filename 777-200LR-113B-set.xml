@@ -1,7 +1,7 @@
 <PropertyList include="777-set-common.xml">
 
     <sim n="0">
-        <description>Boeing 777-200LR with GE90-115B engines</description>
+        <description>Boeing 777-200LR with GE90-113B engines</description>
         <aero>777-200LR</aero>
         <max-payload type="double">440000</max-payload>
         <startup>
